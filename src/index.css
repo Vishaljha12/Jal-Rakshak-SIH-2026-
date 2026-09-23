@@ -1,0 +1,251 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --color-navy-950: #050811;
+  --color-navy-900: #0a0f1d;
+  --color-navy-850: #0f172a;
+  --color-navy-800: #131d33;
+  --color-navy-700: #1e2b45;
+  --color-navy-600: #2d3e63;
+  --color-teal-600: #0ea5e9;
+  --color-teal-500: #06b6d4;
+  --color-teal-400: #22d3ee;
+  --color-teal-300: #67e8f9;
+  --color-accent-cyan: #00f2fe;
+  --color-accent-emerald: #10b981;
+}
+
+:root {
+  color-scheme: dark;
+  --bg-main: #070c12;
+  --bg-sidebar: #09121a;
+  --bg-card: #0c1620;
+  --bg-card-hover: #101e2b;
+  --border-subtle: #142533;
+  --border-bright: #1d394e;
+  --accent-mint: #10b981;
+  --accent-teal: #14b8a6;
+  --accent-coral: #ef4444;
+  --accent-amber: #f59e0b;
+}
+
+body {
+  background-color: #070c12;
+  color: #e2e8f0;
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Production Tactical Command Center Foundations */
+.tactical-bg {
+  background-color: #070c12;
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.03), transparent),
+    linear-gradient(to right, rgba(20, 184, 166, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 184, 166, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 32px 32px, 32px 32px;
+}
+
+.blueprint-grid {
+  background-color: #070e14;
+  background-image: 
+    radial-gradient(ellipse 80% 40% at 50% -10%, rgba(20, 184, 166, 0.05) 0%, transparent 70%),
+    linear-gradient(to right, rgba(20, 184, 166, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 184, 166, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
+}
+
+.tactical-sidebar {
+  background-color: #09121a;
+  border-right: 1px solid #142533;
+}
+
+.tactical-card {
+  background: #0c1620;
+  border: 1px solid #142533;
+  border-radius: 0.625rem;
+}
+
+.tactical-card-hover {
+  transition: all 0.15s ease;
+}
+.tactical-card-hover:hover {
+  border-color: #1d394e;
+  background: #0f1d2a;
+}
+
+/* Clean, high-contrast engineering buttons */
+.mint-btn {
+  background: #10b981;
+  color: #021a12;
+  font-weight: 600;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  transition: all 0.15s ease;
+}
+.mint-btn:hover {
+  background: #059669;
+  color: #ffffff;
+  border-color: #10b981;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25);
+}
+
+.industry-btn-primary {
+  background: #0284c7;
+  color: #ffffff;
+  font-weight: 600;
+  border: 1px solid #38bdf8;
+  transition: all 0.15s ease;
+}
+.industry-btn-primary:hover:not(:disabled) {
+  background: #0369a1;
+  border-color: #7dd3fc;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+/* Sleek industrial scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #080f16;
+}
+::-webkit-scrollbar-thumb {
+  background: #1b2f3f;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #25445c;
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: #060b11 !important;
+}
+
+/* Professional high-contrast action buttons */
+.glow-cyan-btn {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  border: 1px solid #38bdf8;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.glow-cyan-btn:hover:not(:disabled) {
+  background: #0369a1 !important;
+  border-color: #7dd3fc;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+  transform: translateY(-1px);
+}
+
+.glow-cyan-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  filter: grayscale(0.6);
+}
+
+.glow-teal-btn {
+  background: #0d9488 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  border: 1px solid #2dd4bf;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s ease;
+}
+
+.glow-teal-btn:hover:not(:disabled) {
+  background: #0f766e !important;
+  border-color: #5eead4;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Glassmorphism panels and cards */
+.glass-card {
+  background: rgba(12, 22, 32, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #162a3a;
+  border-radius: 0.625rem;
+}
+
+.glass-card:hover {
+  border-color: #1e3b52;
+}
+
+.glass-panel {
+  background: rgba(9, 17, 25, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid #142838;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Map CSS Overrides */
+.leaflet-popup-content-wrapper {
+  background: rgba(9, 18, 26, 0.96) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #1c3b50 !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(9, 18, 26, 0.96) !important;
+  border: 1px solid #1c3b50 !important;
+}
+
+/* Custom Tactical Tooltip Overrides (eliminates default leaflet white box) */
+.leaflet-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.leaflet-tooltip::before,
+.leaflet-tooltip::after {
+  display: none !important;
+}
+
+.settlement-marker-label {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.9), 0 0 2px #000000 !important;
+}
+
+.settlement-marker-label::before {
+  display: none !important;
+}
+
+.highway-badge-label {
+  background: #f59e0b !important;
+  color: #09121a !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  font-family: monospace !important;
+  border: 1px solid #d97706 !important;
+  border-radius: 3px !important;
+  padding: 1px 4px !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
+}
+
