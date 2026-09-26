@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback, Fragment } from 'react';
 import { 
   MapContainer, TileLayer, GeoJSON, ZoomControl, useMap, Marker, Popup, Tooltip, useMapEvents, Polyline 
 } from 'react-leaflet';
@@ -11,20 +11,65 @@ import {
   Layers, Play, Pause, ChevronUp, ChevronDown,
   MapPin, Search, Check, Info, Tent,
   HeartPulse, AlertOctagon, Radio, Send, X,
-  Clock, Building2, Eye, EyeOff, Navigation, ShieldAlert
+  Clock, Building2, Eye, EyeOff, Navigation, ShieldAlert, BarChart2
 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
-// Custom Leaflet DivIcons for mission-critical HADR tactical HUD
+// Site-specific GIS markers with adequate, high-visibility colors
 const damIcon = L.divIcon({
   className: 'custom-dam-marker',
   html: `
     <div class="relative flex items-center justify-center cursor-pointer group" title="Dam Breach Origin">
-      <span class="absolute w-8 h-8 rounded-full bg-red-500/30 animate-ping"></span>
-      <div class="w-7 h-7 rounded-full bg-[#e11d48] border-2 border-white shadow-[0_0_15px_#e11d48] flex items-center justify-center text-white">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-          <line x1="4" y1="22" x2="4" y2="15"></line>
-        </svg>
+      <span class="absolute w-9 h-9 rounded-full bg-red-600/40 animate-ping"></span>
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-red-700 via-rose-600 to-red-500 border-2 border-white shadow-[0_4px_14px_rgba(225,29,72,0.9)] flex items-center justify-center text-white text-xs font-black group-hover:scale-110 transition-transform">
+        🛑
+      </div>
+    </div>
+  `,
+  iconSize: [32, 32],
+  iconAnchor: [16, 16]
+});
+
+// Dynamic Settlement Site Icon (Vibrant village house icon or red flood surge badge if inundated)
+const createSettlementIcon = (isHit, simulatedWaterLevel) => {
+  if (isHit) {
+    return L.divIcon({
+      className: 'settlement-marker-inundated',
+      html: `
+        <div class="relative flex items-center justify-center cursor-pointer group" title="Inundated Settlement">
+          <span class="absolute w-8 h-8 rounded-full bg-red-500/50 animate-ping"></span>
+          <div class="w-7 h-7 rounded-full bg-red-600 border-2 border-white shadow-[0_2px_12px_rgba(220,38,38,0.9)] flex items-center justify-center text-white text-[11px] group-hover:scale-125 transition-transform">
+            🌊
+          </div>
+        </div>
+      `,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
+    });
+  }
+
+  const isWarning = simulatedWaterLevel >= 2.0;
+  return L.divIcon({
+    className: 'settlement-marker-safe',
+    html: `
+      <div class="relative flex items-center justify-center cursor-pointer group" title="Downstream Settlement">
+        <div class="w-7 h-7 rounded-full ${isWarning ? 'bg-amber-500' : 'bg-blue-600'} border-2 border-white shadow-[0_2px_10px_rgba(0,0,0,0.5)] flex items-center justify-center text-white text-[11px] group-hover:scale-125 transition-transform">
+          🏘️
+        </div>
+      </div>
+    `,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14]
+  });
+};
+
+// High-ground Emergency Relief Shelter Icon (Vibrant emerald tent site marker)
+const createShelterIcon = () => L.divIcon({
+  className: 'shelter-marker',
+  html: `
+    <div class="relative flex items-center justify-center cursor-pointer group" title="High-Ground Emergency Shelter">
+      <div class="w-7 h-7 rounded-xl bg-emerald-600 border-2 border-white shadow-[0_2px_12px_rgba(16,185,129,0.9)] flex items-center justify-center text-white text-[12px] group-hover:scale-125 transition-transform">
+        ⛺
       </div>
     </div>
   `,
@@ -32,76 +77,58 @@ const damIcon = L.divIcon({
   iconAnchor: [14, 14]
 });
 
-// Dynamic Settlement Icon with live wave arrival countdown
-const createSettlementIcon = (name, arrivalMin, currentMin) => {
-  const isHit = currentMin >= arrivalMin;
-  const minutesLeft = Math.max(0, arrivalMin - currentMin);
-  const isImminent = !isHit && minutesLeft <= 25;
-
-  const badgeColor = isHit ? 'bg-red-600 text-white shadow-[0_0_8px_#dc2626]' : isImminent ? 'bg-amber-400 text-slate-950 font-bold animate-pulse' : 'bg-cyan-500 text-slate-950 font-bold';
-  const badgeText = isHit ? 'INUNDATED' : `T-${minutesLeft}m`;
-
-  return L.divIcon({
-    className: 'settlement-marker',
-    html: `
-      <div class="flex items-center gap-1 cursor-pointer pointer-events-auto select-none group">
-        <div class="w-2.5 h-2.5 rounded-full shrink-0 ${isHit ? 'bg-red-500 ring-2 ring-white shadow-[0_0_8px_#ef4444]' : 'bg-cyan-400 ring-2 ring-slate-900 shadow-[0_0_6px_#22d3ee]'}"></div>
-        <div class="flex items-center gap-1 bg-[#070e1a]/92 backdrop-blur-md px-1.5 py-0.5 rounded-md border border-cyan-500/40 shadow-xl group-hover:border-cyan-300 transition-colors">
-          <span class="text-[9.5px] font-bold text-white tracking-wide whitespace-nowrap">${name}</span>
-          <span class="text-[8px] font-mono font-black px-1 py-0.2 rounded ${badgeColor} tracking-tighter">
-            ${badgeText}
-          </span>
-        </div>
-      </div>
-    `,
-    iconSize: [110, 20],
-    iconAnchor: [5, 10]
-  });
-};
-
-// High-ground Emergency Relief Shelter Icon
-const createShelterIcon = (name, available) => L.divIcon({
-  className: 'shelter-marker',
-  html: `
-    <div class="relative flex items-center justify-center cursor-pointer group" title="${name} (${available} Beds)">
-      <div class="w-6 h-6 rounded-lg bg-[#063326] border border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.7)] flex items-center justify-center text-emerald-300">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M19 21v-4a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v4"></path>
-          <path d="M3 11l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-        </svg>
-      </div>
-    </div>
-  `,
-  iconSize: [24, 24],
-  iconAnchor: [12, 12]
-});
-
-// Emergency Hospital & Medical Triage Icon
-const createHospitalIcon = (name) => L.divIcon({
+// Emergency Hospital / Triage Center Icon (Vibrant ruby cross medical site marker)
+const createHospitalIcon = () => L.divIcon({
   className: 'hospital-marker',
   html: `
-    <div class="relative flex items-center justify-center cursor-pointer group" title="${name}">
-      <div class="w-6 h-6 rounded-lg bg-[#2e0d15] border border-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.7)] flex items-center justify-center text-rose-300">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M12 6v12M6 12h12"></path>
-        </svg>
+    <div class="relative flex items-center justify-center cursor-pointer group" title="Emergency Hospital & Triage">
+      <div class="w-7 h-7 rounded-full bg-rose-600 border-2 border-white shadow-[0_2px_12px_rgba(225,29,72,0.9)] flex items-center justify-center text-white text-[12px] font-bold group-hover:scale-125 transition-transform">
+        🏥
       </div>
     </div>
   `,
-  iconSize: [24, 24],
-  iconAnchor: [12, 12]
+  iconSize: [28, 28],
+  iconAnchor: [14, 14]
 });
 
-// Highway badge marker
+// Highway badge marker (Clean national highway route badge)
 const createHighwayIcon = (code) => L.divIcon({
-  className: 'highway-badge',
+  className: 'highway-badge-marker',
   html: `
-    <div class="bg-amber-400 text-slate-950 text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded border border-amber-600 shadow-md">
+    <div class="px-1.5 py-0.5 rounded bg-amber-400 border border-slate-900 shadow-md text-[9.5px] font-mono font-black text-slate-950 tracking-tight cursor-pointer hover:scale-110 transition-transform">
       ${code}
     </div>
   `,
-  iconSize: [38, 18],
-  iconAnchor: [19, 9]
+  iconSize: [36, 18],
+  iconAnchor: [18, 9]
+});
+
+// Submerged Roadway / Barrier Marker
+const createRoadblockIcon = () => L.divIcon({
+  className: 'roadblock-marker',
+  html: `
+    <div class="w-6 h-6 rounded-md bg-amber-600 border-2 border-white shadow-md flex items-center justify-center text-white text-[11px] font-bold cursor-pointer">
+      ⛔
+    </div>
+  `,
+  iconSize: [24, 24],
+  iconAnchor: [12, 12]
+});
+
+// Flow Direction Chevron Marker for River Thalweg
+const createFlowChevronIcon = (headingDeg) => L.divIcon({
+  className: 'flow-chevron-marker',
+  html: `
+    <div class="relative flex items-center justify-center pointer-events-none select-none">
+      <div class="w-4 h-4 rounded-full bg-blue-900/90 border border-cyan-400 flex items-center justify-center shadow-md" style="transform: rotate(${headingDeg}deg);">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="3" stroke-linecap="round">
+          <path d="M12 4v16M18 14l-6 6-6-6"/>
+        </svg>
+      </div>
+    </div>
+  `,
+  iconSize: [18, 18],
+  iconAnchor: [9, 9]
 });
 
 // Dynamic Asset Generator for ANY Dam in India with realistic downstream spacing
@@ -323,13 +350,17 @@ export default function TacticalMapCenter({
     fallbackReason: 'Real physics solver unavailable'
   };
 
-  // Basemap settings
-  const [basemapMode, setBasemapMode] = useState('satellite'); // 'map', 'satellite', 'terrain'
-  const [basemapOpacity, setBasemapOpacity] = useState(75);
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
+  // Basemap settings: ONLY Satellite and Relief per user instruction
+  const [basemapMode, setBasemapMode] = useState('satellite'); // 'satellite', 'relief'
+  const [basemapOpacity, setBasemapOpacity] = useState(100);
   const [activeModel, setActiveModel] = useState(solver.toLowerCase().includes('delft') ? 'delft3d' : 'dualsphysics');
 
-  // Timeline playback state
-  const [currentTimeMin, setCurrentTimeMin] = useState(85);
+  // Simulated Water Level (Crest Height) state (0.0m to 5.0m), matching Image 3 and resolving tenure reality
+  const [simulatedWaterLevel, setSimulatedWaterLevel] = useState(5.0);
+  const currentTimeMin = Math.round((simulatedWaterLevel / 5.0) * 12);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const playbackTimerRef = useRef(null);
@@ -407,60 +438,145 @@ export default function TacticalMapCenter({
 
   const { settlements, tacticalShelters, tacticalHospitals, safeEvacuationCorridors, submergedRoads, highways } = tacticalAssets;
 
-  // Complete multi-tiered Inundation GeoJSON (guaranteed water level mapping for ALL dams)
-  const activeFloodGeoJson = useMemo(() => {
-    if (floodData && floodData.features && floodData.features.length > 0) {
-      return floodData;
+  // Downstream River Thalweg Centerline along settlement valley corridor
+  const riverCenterline = useMemo(() => {
+    const nonWater = settlements.filter(s => !s.isWater);
+    return [
+      [damLat, damLon],
+      ...nonWater.map(s => [s.lat, s.lon])
+    ];
+  }, [damLat, damLon, settlements]);
+
+  // Downstream Hydrodynamic Flow Vectors with velocity & discharge metrics
+  const flowVectors = useMemo(() => {
+    if (riverCenterline.length < 2) return [];
+    const vectors = [];
+    for (let i = 0; i < riverCenterline.length - 1; i++) {
+      const p1 = riverCenterline[i];
+      const p2 = riverCenterline[i + 1];
+      const midLat = (p1[0] + p2[0]) / 2;
+      const midLon = (p1[1] + p2[1]) / 2;
+      const dLat = p2[0] - p1[0];
+      const dLon = p2[1] - p1[1];
+      const angleDeg = (Math.atan2(dLon, dLat) * 180 / Math.PI + 360) % 360;
+      const reachSpeed = Number((baseVelocity * Math.max(0.32, 1.0 - i * 0.16)).toFixed(1));
+      const reachQ = Math.round(baseDischarge * Math.max(0.25, 1.0 - i * 0.14));
+      vectors.push({
+        id: `flow-vector-${i}`,
+        lat: midLat,
+        lon: midLon,
+        heading: angleDeg,
+        speed: reachSpeed,
+        discharge: reachQ,
+        reachIndex: i + 1
+      });
     }
-    const scale = damScale;
+    return vectors;
+  }, [riverCenterline, baseVelocity, baseDischarge]);
+
+  // Exposed building & critical facility cluster points (matching Image 3 cartography)
+  const exposedAssets = useMemo(() => {
+    const pts = [];
+    const river = riverCenterline;
+    if (!river || river.length === 0) return pts;
+
+    river.forEach((pt, rIdx) => {
+      if (rIdx === 0) return;
+      const [rLat, rLon] = pt;
+      const count = 7;
+      for (let k = 0; k < count; k++) {
+        const angle = (k * 51 + rIdx * 43) * (Math.PI / 180);
+        const radius = 0.007 + (k % 3) * 0.007;
+        const bLat = Number((rLat + Math.sin(angle) * radius).toFixed(5));
+        const bLon = Number((rLon + Math.cos(angle) * radius).toFixed(5));
+        const thresholdM = Number((1.0 + (k * 0.55) + (rIdx * 0.25)).toFixed(1));
+        const isSensitive = k === 2;
+        pts.push({
+          id: `bld-${rIdx}-${k}`,
+          lat: bLat,
+          lon: bLon,
+          thresholdM,
+          isSensitive,
+          name: isSensitive ? `Établissement sensible (école, hôpital) #${rIdx}` : `Bâtiment #${rIdx * 10 + k}`
+        });
+      }
+    });
+    return pts;
+  }, [riverCenterline]);
+
+  // Realistic Multi-tiered Hydrodynamic Inundation Corridor
+  const activeFloodGeoJson = useMemo(() => {
+    // If incoming floodData has > 8 vertices and no points, use it
+    if (floodData && floodData.features && floodData.features.length > 0) {
+      const isOldCrudePolygon = floodData.features.some(f => 
+        f.geometry?.type === 'Polygon' && f.geometry?.coordinates?.[0]?.length <= 7
+      );
+      if (!isOldCrudePolygon) {
+        return {
+          ...floodData,
+          features: floodData.features.filter(f => f.geometry?.type !== 'Point')
+        };
+      }
+    }
+
     const maxD = baseDepth;
     const peakV = baseVelocity;
-    
-    const p1_core = [
-      [damLon, damLat],
-      [damLon + 0.025 * scale, damLat + 0.012 * scale],
-      [damLon + 0.060 * scale, damLat + 0.005 * scale],
-      [damLon + 0.080 * scale, damLat - 0.018 * scale],
-      [damLon + 0.050 * scale, damLat - 0.038 * scale],
-      [damLon + 0.015 * scale, damLat - 0.022 * scale],
-      [damLon, damLat]
-    ];
-    const p2_severe = [
-      [damLon - 0.008 * scale, damLat + 0.005 * scale],
-      [damLon + 0.040 * scale, damLat + 0.030 * scale],
-      [damLon + 0.110 * scale, damLat + 0.020 * scale],
-      [damLon + 0.150 * scale, damLat - 0.028 * scale],
-      [damLon + 0.095 * scale, damLat - 0.065 * scale],
-      [damLon + 0.020 * scale, damLat - 0.045 * scale],
-      [damLon - 0.008 * scale, damLat + 0.005 * scale]
-    ];
-    const p3_moderate = [
-      [damLon - 0.018 * scale, damLat + 0.008 * scale],
-      [damLon + 0.055 * scale, damLat + 0.050 * scale],
-      [damLon + 0.165 * scale, damLat + 0.038 * scale],
-      [damLon + 0.225 * scale, damLat - 0.035 * scale],
-      [damLon + 0.145 * scale, damLat - 0.095 * scale],
-      [damLon + 0.030 * scale, damLat - 0.070 * scale],
-      [damLon - 0.018 * scale, damLat + 0.008 * scale]
-    ];
-    const p4_shallow = [
-      [damLon - 0.028 * scale, damLat + 0.012 * scale],
-      [damLon + 0.075 * scale, damLat + 0.070 * scale],
-      [damLon + 0.220 * scale, damLat + 0.055 * scale],
-      [damLon + 0.295 * scale, damLat - 0.045 * scale],
-      [damLon + 0.190 * scale, damLat - 0.125 * scale],
-      [damLon + 0.040 * scale, damLat - 0.090 * scale],
-      [damLon - 0.028 * scale, damLat + 0.012 * scale]
-    ];
+    const pts = riverCenterline;
+
+    // Helper: Build continuous curvilinear river buffer swath down the valley
+    const buildRiverCorridor = (widthBase, reachLimit = pts.length) => {
+      const slicePts = pts.slice(0, Math.min(pts.length, reachLimit));
+      if (slicePts.length < 2) return [];
+
+      const leftBank = [];
+      const rightBank = [];
+      const n = slicePts.length;
+
+      for (let i = 0; i < n; i++) {
+        const [cLat, cLon] = slicePts[i];
+        let dLat, dLon;
+        if (i < n - 1) {
+          dLat = slicePts[i + 1][0] - cLat;
+          dLon = slicePts[i + 1][1] - cLon;
+        } else {
+          dLat = cLat - slicePts[i - 1][0];
+          dLon = cLon - slicePts[i - 1][1];
+        }
+        const len = Math.sqrt(dLat * dLat + dLon * dLon) || 0.001;
+        const nLat = -dLon / len;
+        const nLon = dLat / len;
+
+        // Channel spreads wider down the valley as flood wave diffuses
+        const w = widthBase * damScale * (1.0 + (i / Math.max(1, n - 1)) * 0.95);
+        leftBank.push([Number((cLon + nLon * w).toFixed(5)), Number((cLat + nLat * w).toFixed(5))]);
+        rightBank.push([Number((cLon - nLon * w).toFixed(5)), Number((cLat - nLat * w).toFixed(5))]);
+      }
+
+      // Upstream reservoir pool at dam breach origin
+      const [damL, damO] = pts[0];
+      const resW = widthBase * damScale * 0.85;
+      const headwater = [
+        [Number((damO - resW).toFixed(5)), Number((damL + resW * 0.4).toFixed(5))],
+        [Number((damO - resW * 1.3).toFixed(5)), Number(damL.toFixed(5))],
+        [Number((damO - resW).toFixed(5)), Number((damL - resW * 0.4).toFixed(5))]
+      ];
+
+      return [...headwater, ...leftBank, ...rightBank.reverse(), headwater[0]];
+    };
+
+    const poly_core = buildRiverCorridor(0.010, Math.min(3, pts.length));
+    const poly_severe = buildRiverCorridor(0.020, Math.min(5, pts.length));
+    const poly_moderate = buildRiverCorridor(0.035, pts.length);
+    const poly_shallow = buildRiverCorridor(0.054, pts.length);
 
     return {
       type: "FeatureCollection",
       features: [
         {
           type: "Feature",
-          geometry: { type: "Polygon", coordinates: [p4_shallow] },
+          geometry: { type: "Polygon", coordinates: [poly_shallow] },
           properties: {
-            name: `${damName} - Shallow Wading Inundation (0.3m – 1.0m)`,
+            name: `${damName} - Shallow Inundation Fringe (0.3m – 1.0m)`,
             tier: "shallow",
             depth_range: "0.3m – 1.0m",
             area_km2: Number((baseArea * 1.0).toFixed(1)),
@@ -471,9 +587,9 @@ export default function TacticalMapCenter({
         },
         {
           type: "Feature",
-          geometry: { type: "Polygon", coordinates: [p3_moderate] },
+          geometry: { type: "Polygon", coordinates: [poly_moderate] },
           properties: {
-            name: `${damName} - Moderate Inundation (1.0m – 2.0m)`,
+            name: `${damName} - Moderate Inundation Basin (1.0m – 2.0m)`,
             tier: "shallow_yellow",
             depth_range: "1.0m – 2.0m",
             area_km2: Number((baseArea * 0.70).toFixed(1)),
@@ -484,9 +600,9 @@ export default function TacticalMapCenter({
         },
         {
           type: "Feature",
-          geometry: { type: "Polygon", coordinates: [p2_severe] },
+          geometry: { type: "Polygon", coordinates: [poly_severe] },
           properties: {
-            name: `${damName} - Severe Surge Floodplain (2.0m – 4.0m)`,
+            name: `${damName} - Severe Surge Floodplain Corridor (2.0m – 4.0m)`,
             tier: "moderate",
             depth_range: "2.0m – 4.0m",
             area_km2: Number((baseArea * 0.45).toFixed(1)),
@@ -497,9 +613,9 @@ export default function TacticalMapCenter({
         },
         {
           type: "Feature",
-          geometry: { type: "Polygon", coordinates: [p1_core] },
+          geometry: { type: "Polygon", coordinates: [poly_core] },
           properties: {
-            name: `${damName} - Critical Near-Dam Surge Core (> 4.0m)`,
+            name: `${damName} - Supercritical Near-Dam Core Channel (> 4.0m)`,
             tier: "deep",
             depth_range: `> 4.0m (Peak: ${maxD}m)`,
             area_km2: Number((baseArea * 0.22).toFixed(1)),
@@ -510,17 +626,17 @@ export default function TacticalMapCenter({
         }
       ]
     };
-  }, [floodData, damName, damLat, damLon, damScale, baseArea, baseDepth, baseVelocity]);
+  }, [floodData, riverCenterline, damName, damScale, baseArea, baseDepth, baseVelocity]);
 
-  // Playback timer effect
+  // Playback timer effect for simulated water level progression (0.0m to 5.0m)
   useEffect(() => {
     if (isPlaying) {
       playbackTimerRef.current = setInterval(() => {
-        setCurrentTimeMin((prev) => {
-          if (prev >= 120) return 0;
-          return Math.min(120, prev + 1);
+        setSimulatedWaterLevel((prev) => {
+          if (prev >= 5.0) return 0.0;
+          return Number((prev + 0.1).toFixed(1));
         });
-      }, 1000 / playbackSpeed);
+      }, 250 / playbackSpeed);
     } else {
       if (playbackTimerRef.current) clearInterval(playbackTimerRef.current);
     }
@@ -533,18 +649,18 @@ export default function TacticalMapCenter({
   const handleCursorMove = useCallback((latlng) => {
     const dist = Math.sqrt(Math.pow(latlng.lat - damLat, 2) + Math.pow(latlng.lng - damLon, 2));
     const factor = Math.max(0.1, 1 - dist * 4);
-    const depth = Number((baseDepth * factor * (currentTimeMin / 120)).toFixed(1));
+    const depth = Number((simulatedWaterLevel * factor).toFixed(1));
     const velocity = Number((baseVelocity * factor).toFixed(1));
     const arrival = Math.max(5, Math.min(110, Math.round(dist * 450)));
 
     setCursorInfo({
-      depth: Math.max(0.2, depth),
-      velocity: Math.max(0.3, velocity),
+      depth: Math.max(0.1, depth),
+      velocity: Math.max(0.2, velocity),
       arrivalTime: arrival,
       lat: Number(latlng.lat.toFixed(4)),
       lon: Number(latlng.lng.toFixed(4))
     });
-  }, [damLat, damLon, currentTimeMin, baseDepth, baseVelocity]);
+  }, [damLat, damLon, simulatedWaterLevel, baseVelocity]);
 
   const toggleLayer = (key) => {
     setLayers(prev => ({ ...prev, [key]: !prev[key] }));
@@ -612,42 +728,50 @@ export default function TacticalMapCenter({
     }, 2000);
   };
 
-  // Inundation GeoJSON styling with multi-tier colors
+  // Inundation GeoJSON styling with exact hydrodynamic aquatic depth tiers from Image 3
   const styleInundation = useCallback((feature) => {
     const props = feature.properties || {};
     const tier = props.tier || 'shallow';
     
-    let color = '#38bdf8';
-    let fillOpacity = 0.50;
+    // Multi-tier natural blue inundation channel (exact matches to Image 3)
+    let color = '#b8d5f2'; // Inondation < 0.5m
+    let fillOpacity = 0.55;
+    let strokeColor = '#93bce6';
 
-    if (tier === 'deep') {
-      color = '#e11d48'; // > 4.0m Deep Red
-      fillOpacity = 0.80;
-    } else if (tier === 'moderate') {
-      color = '#f97316'; // 2.0 - 4.0m Orange
+    if (tier === 'deep' || tier === 'critical') {
+      color = '#1c4da3'; // Inondation > 2m
+      fillOpacity = 0.85;
+      strokeColor = '#163e85';
+    } else if (tier === 'moderate' || tier === 'severe') {
+      color = '#4180d0'; // Inondation 1 - 2m
+      fillOpacity = 0.72;
+      strokeColor = '#2b68b3';
+    } else if (tier === 'shallow_yellow' || tier === 'moderate_basin') {
+      color = '#7faee4'; // Inondation 0.5 - 1m
       fillOpacity = 0.65;
-    } else if (tier === 'shallow_yellow') {
-      color = '#eab308'; // 1.0 - 2.0m Yellow
-      fillOpacity = 0.52;
+      strokeColor = '#6093cb';
     } else {
-      color = '#0284c7'; // 0.3 - 1.0m Sky Blue
-      fillOpacity = 0.42;
+      color = '#b8d5f2'; // Inondation < 0.5m
+      fillOpacity = 0.50;
+      strokeColor = '#93bce6';
     }
 
     return {
       fillColor: color,
-      weight: 1.5,
-      opacity: 0.95,
-      color: color,
+      weight: 1.2,
+      opacity: 0.9,
+      color: strokeColor,
       fillOpacity: fillOpacity * (basemapOpacity / 100)
     };
   }, [basemapOpacity]);
 
-  const timelineRatio = Math.max(0.1, currentTimeMin / 120);
-  const currentArea = (baseArea * Math.pow(timelineRatio, 0.7)).toFixed(1);
-  const currentDepth = (baseDepth * Math.pow(timelineRatio, 0.4)).toFixed(1);
-  const currentVelocity = (baseVelocity * (1.2 - 0.4 * timelineRatio)).toFixed(1);
-  const currentPopulation = Math.min(Math.round(basePopulation * 1.5), Math.max(800, Math.round(basePopulation * timelineRatio))).toLocaleString();
+  const waterRatio = Math.max(0.08, Math.min(1.0, simulatedWaterLevel / 5.0));
+  const currentArea = (baseArea * Math.pow(waterRatio, 0.75)).toFixed(1);
+  const currentAreaHa = (Number(currentArea) * 100).toFixed(1);
+  const currentDepth = simulatedWaterLevel.toFixed(1);
+  const currentVelocity = (baseVelocity * Math.pow(waterRatio, 0.5)).toFixed(1);
+  const exposedBuildingCount = Math.round(833 * waterRatio);
+  const currentPopulation = Math.min(Math.round(basePopulation * 1.5), Math.max(800, Math.round(basePopulation * waterRatio))).toLocaleString();
 
   return (
     <div className="relative w-full h-full min-h-[680px] flex flex-col bg-[#050811] text-slate-100 overflow-hidden font-sans select-none">
@@ -673,8 +797,8 @@ export default function TacticalMapCenter({
           zoomControl={false}
           style={{ width: '100%', height: '100%', background: '#050811' }}
         >
-          {/* Zoom Control repositioned to bottom-right to eliminate top-right UI overlapping */}
-          <ZoomControl position="bottomright" />
+          {/* Zoom Control positioned at topleft matching Image 3 standard GIS layout */}
+          <ZoomControl position="topleft" />
           
           <MapEventHandler 
             onCursorMove={handleCursorMove} 
@@ -683,46 +807,39 @@ export default function TacticalMapCenter({
             flyTarget={flyTarget}
           />
 
-          {/* Dynamic Basemap Tiles */}
+          {/* Dynamic Basemap Tiles: ONLY Satellite & Relief */}
           {basemapMode === 'satellite' ? (
-            <TileLayer
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-              attribution='&copy; Esri &mdash; World Imagery'
-              opacity={basemapOpacity / 100}
-              maxZoom={18}
-            />
-          ) : basemapMode === 'terrain' ? (
+            <>
+              <TileLayer
+                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                attribution='&copy; Esri &mdash; World Imagery'
+                opacity={basemapOpacity / 100}
+                maxZoom={18}
+              />
+              <TileLayer
+                url="https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+                attribution='&copy; Esri'
+                opacity={0.9}
+                maxZoom={18}
+              />
+            </>
+          ) : (
             <TileLayer
               url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-              attribution='&copy; OpenTopoMap'
+              attribution='&copy; OpenTopoMap contributors'
               opacity={basemapOpacity / 100}
               maxZoom={17}
             />
-          ) : (
-            <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-              attribution='&copy; CARTO'
-              opacity={basemapOpacity / 100}
-              maxZoom={19}
-            />
           )}
 
-          {/* Reference Labels Overlay */}
-          {basemapMode === 'satellite' && (
-            <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
-              attribution='&copy; CartoDB'
-              opacity={0.7}
-              maxZoom={18}
-            />
-          )}
-
-          {/* Guaranteed Multi-Tier Inundation Contours Layer */}
+          {/* Guaranteed Multi-Tier Hydrodynamic Inundation Swath */}
           {layers.dualsphysics && activeFloodGeoJson && activeFloodGeoJson.features && (
             <GeoJSON 
               key={`flood-${jobId}-${damLat}-${damLon}`}
               data={activeFloodGeoJson}
               style={styleInundation}
+              filter={(feature) => feature.geometry?.type !== 'Point'}
+              pointToLayer={() => null}
               onEachFeature={(feature, layer) => {
                 const p = feature.properties || {};
                 layer.bindPopup(`
@@ -742,6 +859,40 @@ export default function TacticalMapCenter({
               }}
             />
           )}
+
+          {/* Hydrodynamic River Thalweg Centerline Flow Line */}
+          {layers.dualsphysics && riverCenterline.length >= 2 && (
+            <Polyline 
+              positions={riverCenterline}
+              pathOptions={{
+                color: '#00f0ff',
+                weight: 4,
+                opacity: 0.95,
+                dashArray: '12, 10'
+              }}
+            >
+              <Tooltip sticky>
+                <span className="font-mono text-xs font-extrabold text-cyan-300">
+                  🌊 Downstream Hydrodynamic Thalweg · Breach Surge Channel
+                </span>
+              </Tooltip>
+            </Polyline>
+          )}
+
+          {/* Downstream Flow Direction Chevrons (Hover tooltip only, clean directional glyphs) */}
+          {layers.dualsphysics && flowVectors.map((v) => (
+            <Marker 
+              key={v.id}
+              position={[v.lat, v.lon]}
+              icon={createFlowChevronIcon(v.heading)}
+            >
+              <Tooltip direction="top" offset={[0, -10]}>
+                <div className="bg-slate-950/95 text-cyan-300 font-mono text-[10.5px] font-bold p-1 rounded border border-cyan-500/40">
+                  Vector Reach {v.reachIndex}: {v.speed} m/s | Q = {v.discharge.toLocaleString()} m³/s
+                </div>
+              </Tooltip>
+            </Marker>
+          ))}
 
           {/* Safe Evacuation Corridors (Green Glowing Polyline) */}
           {layers.evacRoutes && safeEvacuationCorridors.map((route, idx) => (
@@ -766,29 +917,50 @@ export default function TacticalMapCenter({
             </Polyline>
           ))}
 
-          {/* Impassable Submerged Roads (Red Warning Polyline) */}
+          {/* Impassable Submerged Roads (Red Warning Polyline & Barrier Marker) */}
           {layers.roadblocks && submergedRoads.map((road, idx) => (
-            <Polyline 
-              key={`submerged-${idx}`}
-              positions={road.path}
-              pathOptions={{
-                color: '#ef4444',
-                weight: 4,
-                opacity: 0.9
-              }}
-              eventHandlers={{
-                click: () => setSelectedFeature({ type: 'roadblock', data: road })
-              }}
-            >
-              <Tooltip sticky>
-                <span className="font-mono text-xs font-bold text-red-300">
-                  {road.name} &mdash; {road.hazard}
-                </span>
-              </Tooltip>
-            </Polyline>
+            <Fragment key={`submerged-group-${idx}`}>
+              <Polyline 
+                positions={road.path}
+                pathOptions={{
+                  color: '#ef4444',
+                  weight: 4,
+                  opacity: 0.9,
+                  dashArray: '8, 8'
+                }}
+                eventHandlers={{
+                  click: () => setSelectedFeature({ type: 'roadblock', data: road })
+                }}
+              >
+                <Tooltip sticky opacity={1}>
+                  <div className="bg-slate-950 text-white font-sans text-xs p-2 rounded-xl border border-red-500/80 shadow-2xl">
+                    <div className="font-extrabold text-red-400 flex items-center gap-1.5">
+                      <span>⛔</span> {road.name}
+                    </div>
+                    <div className="text-[10.5px] font-mono text-slate-300 mt-0.5">{road.hazard}</div>
+                  </div>
+                </Tooltip>
+              </Polyline>
+
+              {road.path[1] && (
+                <Marker
+                  position={road.path[1]}
+                  icon={createRoadblockIcon()}
+                  eventHandlers={{
+                    click: () => setSelectedFeature({ type: 'roadblock', data: road })
+                  }}
+                >
+                  <Tooltip direction="top" offset={[0, -12]} opacity={1}>
+                    <div className="bg-slate-950 text-red-400 font-mono text-[10.5px] font-bold px-2 py-1 rounded-lg border border-red-500/50 shadow-xl">
+                      ⛔ Submerged Roadway: Impassable
+                    </div>
+                  </Tooltip>
+                </Marker>
+              )}
+            </Fragment>
           ))}
 
-          {/* Dam Origin Marker & Interactive Callout */}
+          {/* Dam Origin Marker & Interactive Callout (Compact circular pin) */}
           <Marker 
             position={[damLat, damLon]} 
             icon={damIcon}
@@ -809,14 +981,14 @@ export default function TacticalMapCenter({
               })
             }}
           >
-            <Tooltip direction="top" offset={[0, -16]}>
-              <div className="bg-[#1a080c]/95 border border-red-500/80 px-2.5 py-1.5 rounded-lg shadow-xl text-left backdrop-blur-md">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-white">
-                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+            <Tooltip direction="top" offset={[0, -16]} opacity={1}>
+              <div className="bg-slate-950 text-white border border-red-500/80 px-3 py-2 rounded-xl shadow-2xl text-left backdrop-blur-md min-w-[200px]">
+                <div className="flex items-center gap-1.5 text-xs font-black text-red-400">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
                   {damName}
                 </div>
-                <div className="text-[10px] font-mono text-red-300 mt-0.5">
-                  Click for Dam &amp; Breach Telemetry &bull; {damBreachWidth}m Breach
+                <div className="text-[10.5px] font-mono text-slate-300 mt-1">
+                  Breach Origin &bull; Width: <strong>{damBreachWidth}m</strong> &bull; Head: <strong>{damHeight}m</strong>
                 </div>
               </div>
             </Tooltip>
@@ -827,179 +999,217 @@ export default function TacticalMapCenter({
             <Marker 
               key={s.id} 
               position={[s.lat, s.lon]} 
-              icon={createShelterIcon(s.name, s.available)}
+              icon={createShelterIcon()}
               eventHandlers={{
                 click: () => setSelectedFeature({ type: 'shelter', data: s })
               }}
             >
-              <Tooltip direction="top" offset={[0, -12]}>
-                <span className="font-mono text-xs font-bold text-emerald-300">
-                  {s.name} ({s.available} beds open)
-                </span>
+              <Tooltip direction="top" offset={[0, -14]} opacity={1}>
+                <div className="bg-slate-950 text-white border border-emerald-500/80 px-3 py-2 rounded-xl shadow-2xl text-left backdrop-blur-md min-w-[190px]">
+                  <div className="flex items-center gap-1.5 text-xs font-black text-emerald-400">
+                    <span>⛺</span>
+                    {s.name}
+                  </div>
+                  <div className="text-[10.5px] font-mono text-slate-300 mt-1">
+                    Relief Shelter &bull; <strong className="text-emerald-300">{s.available} beds open</strong>
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                    Safe Elevation: {s.elevationM}
+                  </div>
+                </div>
               </Tooltip>
             </Marker>
           ))}
 
-          {/* Emergency Hospitals & Triage Hubs */}
+          {/* Emergency Hospitals & Critical Facilities */}
           {layers.hospitals && tacticalHospitals.map((h) => (
             <Marker 
               key={h.id} 
               position={[h.lat, h.lon]} 
-              icon={createHospitalIcon(h.name)}
+              icon={createHospitalIcon()}
               eventHandlers={{
                 click: () => setSelectedFeature({ type: 'hospital', data: h })
               }}
             >
-              <Tooltip direction="top" offset={[0, -12]}>
-                <span className="font-mono text-xs font-bold text-rose-300">
-                  {h.name} ({h.status})
-                </span>
+              <Tooltip direction="top" offset={[0, -14]} opacity={1}>
+                <div className="bg-slate-950 text-white border border-rose-500/80 px-3 py-2 rounded-xl shadow-2xl text-left backdrop-blur-md min-w-[190px]">
+                  <div className="flex items-center gap-1.5 text-xs font-black text-rose-400">
+                    <span>🏥</span>
+                    {h.name}
+                  </div>
+                  <div className="text-[10.5px] font-mono text-slate-300 mt-1">
+                    Medical Post &bull; Status: <strong className="text-rose-300">{h.status}</strong>
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                    {h.icuBeds} &bull; Ambulances: {h.ambulances}
+                  </div>
+                </div>
               </Tooltip>
             </Marker>
           ))}
 
-          {/* Downstream Settlements with Live Wave Arrival Status */}
-          {layers.villages && settlements.map((s, idx) => (
-            <Marker 
-              key={`settlement-${idx}`} 
-              position={[s.lat, s.lon]} 
-              icon={createSettlementIcon(s.name, s.arrivalMin, currentTimeMin)}
-              eventHandlers={{
-                click: () => setSelectedFeature({ type: 'settlement', data: s })
-              }}
-            />
-          ))}
+          {/* Downstream Settlements (Site icon with high-contrast English tooltip) */}
+          {layers.villages && settlements.map((s, idx) => {
+            const isHit = simulatedWaterLevel >= (s.distKm > 15 ? 3.5 : 1.5);
+            return (
+              <Marker 
+                key={`settlement-${idx}`} 
+                position={[s.lat, s.lon]} 
+                icon={createSettlementIcon(isHit, simulatedWaterLevel)}
+                eventHandlers={{
+                  click: () => setSelectedFeature({ type: 'settlement', data: s })
+                }}
+              >
+                <Tooltip direction="top" offset={[0, -14]} opacity={1}>
+                  <div className="bg-slate-950 text-white font-sans text-xs p-2.5 rounded-xl border border-slate-700 shadow-2xl min-w-[200px]">
+                    <div className="font-extrabold flex items-center gap-2">
+                      <span className={`w-2.5 h-2.5 rounded-full ${isHit ? 'bg-red-500' : 'bg-blue-400'}`}></span>
+                      <span className="text-white text-xs">{s.name}</span>
+                    </div>
+                    <div className="text-[10.5px] text-slate-300 mt-1 font-mono">
+                      Distance: <strong>{s.distKm} km</strong> &bull; Pop: <strong>{s.pop.toLocaleString()}</strong>
+                    </div>
+                    <div className="mt-1 pt-1 border-t border-slate-800 text-[10px] font-mono font-bold">
+                      {isHit ? (
+                        <span className="text-red-400 flex items-center gap-1">
+                          <span>🌊</span> STATUS: SUBMERGED (&gt;2.0m)
+                        </span>
+                      ) : (
+                        <span className="text-amber-300 flex items-center gap-1">
+                          <span>⏱️</span> STATUS: APPROACHING (T-{Math.max(5, s.arrivalMin)}m)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Tooltip>
+              </Marker>
+            );
+          })}
 
-          {/* Highway Badges */}
+          {/* Exposed Buildings & Infrastructure Points */}
+          {layers.villages && exposedAssets.map((b) => {
+            const isSubmerged = simulatedWaterLevel >= b.thresholdM;
+            const dotColor = isSubmerged 
+              ? '#b91c1c' 
+              : simulatedWaterLevel >= 2.0 
+                ? '#ea580c' 
+                : simulatedWaterLevel >= 1.0 
+                  ? '#f59e0b' 
+                  : '#94a3b8';
+            return (
+              <Marker
+                key={b.id}
+                position={[b.lat, b.lon]}
+                icon={L.divIcon({
+                  className: 'asset-dot-marker',
+                  html: `<div class="w-3 h-3 rounded-full border-2 border-white shadow-md cursor-pointer" style="background-color: ${b.isSensitive ? '#f97316' : dotColor}; ${b.isSensitive ? 'box-shadow: 0 0 0 2px #fdba74;' : ''}"></div>`,
+                  iconSize: [12, 12],
+                  iconAnchor: [6, 6]
+                })}
+              >
+                <Tooltip direction="top" offset={[0, -8]} opacity={1}>
+                  <div className="bg-slate-950 text-white font-mono text-[10.5px] px-2 py-1 rounded-lg border border-slate-700 shadow-xl">
+                    {b.name} &bull; <strong className={isSubmerged ? 'text-red-400' : 'text-amber-300'}>{isSubmerged ? 'Submerged (>2.0m)' : 'Exposed Area'}</strong>
+                  </div>
+                </Tooltip>
+              </Marker>
+            );
+          })}
+
+          {/* Highway Markers */}
           {layers.roads && highways.map((h, idx) => (
             <Marker 
               key={`highway-${idx}`} 
               position={[h.lat, h.lon]} 
               icon={createHighwayIcon(h.code)}
-            />
+            >
+              <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+                <div className="bg-slate-950 text-amber-300 font-mono text-[11px] font-black px-2.5 py-1 rounded-lg border border-amber-500/40 shadow-xl">
+                  {h.code} Downstream Corridor
+                </div>
+              </Tooltip>
+            </Marker>
           ))}
         </MapContainer>
 
-        {/* 2. Structured Top HUD Bar with NO Overlapping */}
-        <div className="absolute top-3 left-4 right-4 z-[400] flex flex-wrap items-center justify-between gap-3 pointer-events-none">
-          {/* Left HUD: Search Box & Focus Mode Button */}
-          <div className="pointer-events-auto flex items-center gap-2">
-            <form onSubmit={handleSearch} className="flex items-center gap-2 bg-[#090f1d]/90 backdrop-blur-xl border border-cyan-500/30 rounded-xl px-3 py-1.5 w-60 max-w-full shadow-2xl">
-              <Search size={13} className="text-cyan-400 shrink-0" />
-              <input 
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search town, shelter, hospital..."
-                className="bg-transparent text-xs text-slate-100 placeholder-slate-400 outline-none w-full font-sans"
-              />
-              <button type="submit" className="text-[10px] font-mono text-cyan-400 hover:text-cyan-300 px-1 font-bold cursor-pointer">
-                GO
-              </button>
-            </form>
+        {/* 1. Top-Left Title Card */}
+        <div className="absolute top-3 left-14 z-[400] max-w-lg pointer-events-auto">
+          <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl border border-slate-300 dark:border-slate-700 p-3 px-4 shadow-xl text-slate-900 dark:text-white">
+            <h1 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white leading-tight">
+              Flood Inundation Simulation — {damName || 'Command Area'}
+            </h1>
+            <p className="text-[10.5px] text-slate-600 dark:text-slate-300 mt-0.5 leading-snug">
+              Hydrodynamic Solver ({solver || 'DualSPHysics 3D'}) | Dynamic Water Rise Progression
+            </p>
+            
+            <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 flex-wrap sm:flex-nowrap">
+              <form onSubmit={handleSearch} className="flex-1 min-w-[140px] flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl px-2.5 py-1 border border-slate-300 dark:border-slate-700">
+                <Search size={12} className="text-slate-500 dark:text-slate-400 shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search town, shelter, hospital..."
+                  className="bg-transparent text-[11px] text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 outline-none w-full"
+                />
+              </form>
 
-            {/* Quick Map Focus Mode (Hides/Shows side panels) */}
-            <button
-              type="button"
-              onClick={() => setFocusMapMode(!focusMapMode)}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xl ${
-                focusMapMode 
-                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)]' 
-                  : 'bg-[#090f1d]/90 text-slate-200 border-cyan-500/30 hover:border-cyan-400'
-              }`}
-              title="Toggle Clean Map View (Hides all side cards)"
-            >
-              {focusMapMode ? <Eye size={13} className="text-amber-400" /> : <EyeOff size={13} className="text-cyan-400" />}
-              <span>{focusMapMode ? 'Exit Focus' : 'Focus Map'}</span>
-            </button>
-          </div>
-
-          {/* Center HUD: Basemap Switcher, Result Provenance Badge & GIS Export Menu */}
-          <div className="pointer-events-auto flex items-center gap-2">
-            <div className="bg-[#090f1d]/90 backdrop-blur-xl border border-cyan-500/30 rounded-xl p-0.5 flex items-center text-xs font-semibold text-slate-300 shadow-xl">
-              <button 
-                type="button"
-                onClick={() => setBasemapMode('map')}
-                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${basemapMode === 'map' ? 'bg-cyan-500 text-slate-950 font-bold shadow' : 'hover:text-white'}`}
-              >
-                Map
-              </button>
-              <button 
-                type="button"
-                onClick={() => setBasemapMode('satellite')}
-                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${basemapMode === 'satellite' ? 'bg-cyan-500 text-slate-950 font-bold shadow' : 'hover:text-white'}`}
-              >
-                Satellite
-              </button>
-              <button 
-                type="button"
-                onClick={() => setBasemapMode('terrain')}
-                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${basemapMode === 'terrain' ? 'bg-cyan-500 text-slate-950 font-bold shadow' : 'hover:text-white'}`}
-              >
-                Terrain
-              </button>
-            </div>
-
-            <ResultProvenanceBadge provenance={effectiveProvenance} variant="badge" />
-
-            <GISExportMenu 
-              jobId={jobId}
-              floodGeojson={activeFloodGeoJson}
-              damName={damName}
-              provenance={effectiveProvenance}
-            />
-          </div>
-
-          {/* Right HUD: Emergency Evacuation Broadcast Button (Dedicated Position with NO Overlap) */}
-          <div className="pointer-events-auto flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setIsBroadcastModalOpen(true)}
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-red-600 hover:from-red-500 hover:to-rose-500 text-white font-extrabold text-xs flex items-center gap-2 shadow-[0_0_20px_rgba(225,29,72,0.5)] border border-red-400/50 hover:scale-105 active:scale-95 transition-all cursor-pointer"
-            >
-              <Radio size={13} className="animate-pulse text-white" />
-              <span>BROADCAST ALERTS</span>
-            </button>
-          </div>
-        </div>
-
-        {/* 3. Floating Left Panel: Tactical Map Layers Drawer */}
-        {!focusMapMode && (
-          <div className="absolute top-16 left-4 z-[400] w-56 glass-panel rounded-2xl border border-cyan-500/30 shadow-[0_12px_40px_rgba(0,0,0,0.6)] overflow-hidden transition-all">
-            <div 
-              onClick={() => setLayersCollapsed(!layersCollapsed)}
-              className="flex items-center justify-between p-2 px-3 bg-[#0a1222]/90 border-b border-cyan-500/20 cursor-pointer hover:bg-[#0d182e]/90 transition-colors"
-            >
-              <div className="flex items-center gap-2 text-[10.5px] font-bold text-slate-100 uppercase tracking-wider">
-                <Layers size={13} className="text-cyan-400" />
-                HADR Mission Layers
-              </div>
-              <button className="text-slate-400 hover:text-white">
-                {layersCollapsed ? <ChevronDown size={13} /> : <ChevronUp size={13} />}
-              </button>
-            </div>
-
-            {!layersCollapsed && (
-              <div className="p-2 px-3 space-y-1 text-xs text-slate-300 max-h-56 overflow-y-auto custom-scrollbar">
+              {/* Basemap switcher: ONLY SATELLITE & RELIEF */}
+              <div className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-300 dark:border-slate-700 text-[10.5px] font-bold text-slate-700 dark:text-slate-300">
                 {[
-                  { id: 'dualsphysics', label: '🌊 Multi-Tier Inundation' },
-                  { id: 'villages', label: '⏱️ Settlement Timers' },
+                  { id: 'satellite', label: 'Satellite' },
+                  { id: 'relief', label: 'Relief' }
+                ].map(m => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setBasemapMode(m.id)}
+                    className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                      basemapMode === m.id 
+                        ? 'bg-blue-600 text-white font-extrabold shadow' 
+                        : 'hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* HADR Layer Drawer Toggle */}
+              <button
+                type="button"
+                onClick={() => setLayersCollapsed(!layersCollapsed)}
+                className={`px-2.5 py-1 rounded-xl border text-[10.5px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
+                  !layersCollapsed 
+                    ? 'bg-blue-600 text-white border-blue-600 shadow' 
+                    : 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
+                }`}
+                title="Toggle map layers"
+              >
+                <Layers size={13} />
+                <span>Layers</span>
+              </button>
+            </div>
+
+            {/* Collapsible Layer Drawer */}
+            {!layersCollapsed && (
+              <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-2 text-[10.5px] font-semibold text-slate-800 dark:text-slate-200">
+                {[
+                  { id: 'dualsphysics', label: '🌊 Hydrodynamic Inundation' },
+                  { id: 'villages', label: '🏘️ Downstream Settlements' },
                   { id: 'shelters', label: '⛺ High-Ground Shelters' },
                   { id: 'hospitals', label: '🏥 Hospitals & Triage' },
                   { id: 'evacRoutes', label: '🟢 Evacuation Corridors' },
                   { id: 'roadblocks', label: '⛔ Submerged Roads' },
-                  { id: 'satellite', label: '🛰️ Satellite Imagery' },
-                  { id: 'terrain', label: '⛰️ SRTM Elevation' },
-                  { id: 'roads', label: '🛣️ Highway Markers' },
                 ].map(item => (
-                  <label key={item.id} className="flex items-center gap-2 cursor-pointer hover:text-white select-none py-0.5">
+                  <label key={item.id} className="flex items-center gap-2 cursor-pointer hover:text-blue-600 dark:hover:text-cyan-300 select-none">
                     <input 
                       type="checkbox"
                       checked={layers[item.id] || false}
                       onChange={() => toggleLayer(item.id)}
-                      className="rounded bg-[#070e1c] border-cyan-500/40 text-cyan-400 focus:ring-0 cursor-pointer w-3 h-3"
+                      className="rounded bg-slate-100 dark:bg-slate-800 border-slate-400 dark:border-slate-600 text-blue-600 cursor-pointer w-3.5 h-3.5"
                     />
-                    <span className={`text-[10px] ${layers[item.id] ? 'text-slate-100 font-medium' : 'text-slate-400'}`}>
+                    <span className={layers[item.id] ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-500 dark:text-slate-400'}>
                       {item.label}
                     </span>
                   </label>
@@ -1007,401 +1217,301 @@ export default function TacticalMapCenter({
               </div>
             )}
           </div>
-        )}
+        </div>
 
-        {/* 4. Floating Left Panel 2: Flood Depth & Actionable Hazard Legend */}
-        {!focusMapMode && (
-          <div className="absolute bottom-28 left-4 z-[400] w-48 glass-panel p-2.5 rounded-2xl border border-cyan-500/30 shadow-2xl">
-            <div 
-              onClick={() => setLegendCollapsed(!legendCollapsed)}
-              className="text-[10px] font-bold text-slate-200 mb-1 flex items-center justify-between cursor-pointer"
-            >
-              <span>Hazard Tiers (NDMA)</span>
-              <button className="text-slate-400 hover:text-white">
-                {legendCollapsed ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-              </button>
+        {/* 2. Top-Right Statistics Card */}
+        <div className="absolute top-3 right-4 z-[400] w-80 max-w-full pointer-events-auto">
+          <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-xl text-slate-900 dark:text-white">
+            <div className="flex items-center justify-between pb-2.5 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <BarChart2 size={15} className="text-blue-600 dark:text-blue-400" />
+                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">
+                  Statistics &mdash; {damName?.split(' ')[0] || 'Zone'}
+                </h3>
+              </div>
+              <ResultProvenanceBadge provenance={effectiveProvenance} variant="badge" />
             </div>
 
-            {!legendCollapsed && (
-              <>
-                <div className="space-y-1 text-[9px] font-mono mt-1">
-                  <div className="flex items-center justify-between p-1 rounded bg-red-950/40 border border-red-500/30">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-sm bg-[#e11d48]"></span>
-                      <span className="text-red-200 font-bold">&gt; 4.0m</span>
-                    </div>
-                    <span className="text-[7.5px] text-red-300">FATAL / EVACUATE</span>
-                  </div>
-                  <div className="flex items-center justify-between p-1 rounded bg-amber-950/30 border border-amber-500/30">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-sm bg-[#f97316]"></span>
-                      <span className="text-amber-200 font-bold">2.0 - 4.0m</span>
-                    </div>
-                    <span className="text-[7.5px] text-amber-300">HIGH GROUND</span>
-                  </div>
-                  <div className="flex items-center justify-between p-1 rounded bg-yellow-950/20 border border-yellow-500/30">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-sm bg-[#eab308]"></span>
-                      <span className="text-yellow-200">1.0 - 2.0m</span>
-                    </div>
-                    <span className="text-[7.5px] text-yellow-400">BOAT RESCUE</span>
-                  </div>
-                  <div className="flex items-center justify-between p-1 rounded bg-cyan-950/20 border border-cyan-500/20">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-sm bg-[#38bdf8]"></span>
-                      <span className="text-cyan-200">0.3 - 1.0m</span>
-                    </div>
-                    <span className="text-[7.5px] text-cyan-400">WADING ONLY</span>
-                  </div>
-                </div>
+            <div className="mt-3 space-y-2 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-700 dark:text-slate-300 font-semibold">Simulated Water Level</span>
+                <span className="font-bold text-slate-900 dark:text-white font-mono text-sm">
+                  {simulatedWaterLevel.toFixed(1)} m
+                </span>
+              </div>
 
-                <div className="mt-1.5 pt-1 border-t border-cyan-500/20 flex items-center justify-between text-[8.5px] font-mono text-slate-400">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                    <span className="text-emerald-300">Safe Route</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                    <span className="text-rose-300">Impassable</span>
-                  </div>
-                </div>
-              </>
-            )}
+              <div className="flex justify-between items-center">
+                <span className="text-slate-700 dark:text-slate-300 font-semibold">Inundated Area</span>
+                <span className="font-bold text-slate-900 dark:text-white font-mono text-sm">
+                  {currentAreaHa} ha <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">({currentArea} km²)</span>
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-slate-700 dark:text-slate-300 font-semibold">Exposed Buildings</span>
+                <span className="font-bold font-mono text-sm">
+                  <span className="text-amber-700 dark:text-amber-400 font-black">{exposedBuildingCount}</span>
+                  <span className="text-slate-600 dark:text-slate-400 font-normal text-xs"> / 10,000 ({((exposedBuildingCount / 10000) * 100).toFixed(1)}%)</span>
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-slate-700 dark:text-slate-300 font-semibold">Sensitive Facilities Exposed</span>
+                <span className="font-bold text-red-600 dark:text-red-400 font-mono text-sm">
+                  {simulatedWaterLevel >= 2.0 ? (simulatedWaterLevel >= 3.5 ? '5 facilities' : '3 facilities') : '1 facility'}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-3.5 pt-2.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-600 dark:text-slate-400">
+              <span className="truncate max-w-[160px] font-medium">Source: CWC / NDMA Protocols</span>
+              <div className="flex items-center gap-1.5">
+                <GISExportMenu 
+                  jobId={jobId}
+                  floodGeojson={activeFloodGeoJson}
+                  damName={damName}
+                  provenance={effectiveProvenance}
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsBroadcastModalOpen(true)}
+                  className="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold shadow cursor-pointer transition-colors"
+                >
+                  Alert
+                </button>
+              </div>
+            </div>
           </div>
-        )}
+        </div>
+
+        {/* 3. Bottom Player Bar (Simulated Water Level) */}
+        <div className="absolute bottom-6 left-6 z-[400] w-[92%] sm:w-[620px] pointer-events-auto">
+          <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-2xl text-slate-900 dark:text-white">
+            {/* Top row: Play/Pause button + Title & Duration + Bold Depth Readout */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-white transition-all cursor-pointer shadow-md ${
+                    isPlaying 
+                      ? 'bg-amber-600 hover:bg-amber-700 shadow-[0_0_12px_rgba(217,119,6,0.5)]' 
+                      : 'bg-blue-600 hover:bg-blue-700 shadow-[0_0_12px_rgba(37,99,235,0.5)] hover:scale-105'
+                  }`}
+                  title={isPlaying ? "Pause simulation playback" : "Start simulation playback"}
+                >
+                  {isPlaying ? <Pause size={20} /> : <Play size={20} className="ml-0.5" fill="currentColor" />}
+                </button>
+                <div>
+                  <h4 className="text-sm font-extrabold text-slate-900 dark:text-white">
+                    Simulated Water Level
+                  </h4>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 font-mono">
+                    Physical Solver Duration: T_phys = 3.42s (CUDA SPH) &bull; Q = {Math.round(baseDischarge).toLocaleString()} m³/s
+                  </p>
+                </div>
+              </div>
+
+              {/* Big Bold Depth Display */}
+              <div className="text-3xl font-black text-red-600 dark:text-rose-400 font-mono tracking-tight">
+                {simulatedWaterLevel.toFixed(1)} m
+              </div>
+            </div>
+
+            {/* Scrubber Range Slider */}
+            <div className="relative px-1 pt-1">
+              <input
+                type="range"
+                min="0"
+                max="5"
+                step="0.1"
+                value={simulatedWaterLevel}
+                onChange={(e) => setSimulatedWaterLevel(Number(e.target.value))}
+                className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              />
+              {/* Discrete tick marks: 0.0m to 5.0m */}
+              <div className="flex justify-between items-center text-[9.5px] font-mono font-bold text-slate-700 dark:text-slate-300 mt-1 select-none">
+                {[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0].map((tick) => (
+                  <div key={tick} className="flex flex-col items-center">
+                    <span className="h-1.5 w-0.5 bg-slate-400 dark:bg-slate-500 mb-0.5"></span>
+                    <span>{tick.toFixed(1)}m</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 4. Bottom-Right Legend Card */}
+        <div className="absolute bottom-6 right-6 z-[400] w-64 pointer-events-auto">
+          <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl border border-slate-300 dark:border-slate-700 p-3.5 shadow-2xl text-slate-900 dark:text-white">
+            <h4 className="text-xs font-extrabold text-slate-900 dark:text-white mb-2 pb-1.5 border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider">
+              Legend
+            </h4>
+            
+            {/* Inundation depth color swatches */}
+            <div className="space-y-1.5 text-[11px] font-semibold">
+              <div className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-xs shrink-0" style={{ backgroundColor: '#b8d5f2', border: '1px solid #93bce6' }}></span>
+                <span className="text-slate-800 dark:text-slate-200">Inundation &lt; 0.5m</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-xs shrink-0" style={{ backgroundColor: '#7faee4', border: '1px solid #6093cb' }}></span>
+                <span className="text-slate-800 dark:text-slate-200">Inundation 0.5 - 1m</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-xs shrink-0" style={{ backgroundColor: '#4180d0', border: '1px solid #2b68b3' }}></span>
+                <span className="text-slate-800 dark:text-slate-200">Inundation 1 - 2m</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-xs shrink-0" style={{ backgroundColor: '#1c4da3', border: '1px solid #163e85' }}></span>
+                <span className="text-slate-800 dark:text-slate-200">Inundation &gt; 2m</span>
+              </div>
+            </div>
+
+            <div className="my-2.5 border-t border-slate-200 dark:border-slate-800"></div>
+
+            {/* Exposed building dots swatches */}
+            <div className="space-y-1.5 text-[11px] font-medium">
+              <div className="flex items-center gap-2">
+                <span className="w-3.5 h-3.5 rounded-xs shrink-0 bg-[#cbd5e1] border border-slate-400"></span>
+                <span className="text-slate-800 dark:text-slate-200">Building outside flood zone</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3.5 h-3.5 rounded-xs shrink-0 bg-[#fef08a] border border-yellow-400"></span>
+                <span className="text-slate-800 dark:text-slate-200">Exposed &lt; 0.5m</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3.5 h-3.5 rounded-xs shrink-0 bg-[#fed7aa] border border-orange-300"></span>
+                <span className="text-slate-800 dark:text-slate-200">Exposed 0.5 - 1m</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3.5 h-3.5 rounded-xs shrink-0 bg-[#fb923c] border border-orange-500"></span>
+                <span className="text-slate-800 dark:text-slate-200">Exposed 1 - 1.5m</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3.5 h-3.5 rounded-xs shrink-0 bg-[#ea580c] border border-orange-700"></span>
+                <span className="text-slate-800 dark:text-slate-200">Exposed 1.5 - 2m</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3.5 h-3.5 rounded-xs shrink-0 bg-[#b91c1c] border border-red-800"></span>
+                <span className="text-slate-800 dark:text-slate-200">Exposed &gt; 2m</span>
+              </div>
+            </div>
+
+            <div className="my-2.5 border-t border-slate-200 dark:border-slate-800"></div>
+
+            {/* Sensitive facility */}
+            <div className="flex items-center gap-2 text-[11px]">
+              <span className="w-4 h-4 rounded-full shrink-0 bg-[#f97316] border-2 border-amber-300 shadow-xs"></span>
+              <span className="text-slate-800 dark:text-slate-200 font-bold">Sensitive Facility (School, Hospital)</span>
+            </div>
+          </div>
+        </div>
 
         {/* 5. Selected Tactical Asset Card (Dam / Shelter / Hospital / Settlement) */}
         {selectedFeature && (
-          <div className="absolute top-16 left-64 z-[500] w-76 glass-panel p-3.5 rounded-2xl border-2 border-cyan-400/60 shadow-[0_15px_50px_rgba(0,0,0,0.8)] backdrop-blur-2xl animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-2 border-b border-cyan-500/20">
-              <span className="text-[10px] font-mono font-black uppercase tracking-widest text-cyan-400 flex items-center gap-1.5">
-                {selectedFeature.type === 'dam' ? <Building2 size={13} className="text-red-400" /> :
-                 selectedFeature.type === 'shelter' ? <Tent size={13} className="text-emerald-400" /> :
-                 selectedFeature.type === 'hospital' ? <HeartPulse size={13} className="text-rose-400" /> :
-                 selectedFeature.type === 'route' ? <Navigation size={13} className="text-emerald-400" /> :
-                 selectedFeature.type === 'roadblock' ? <AlertOctagon size={13} className="text-red-400" /> :
-                 <MapPin size={13} className="text-cyan-400" />}
-                {selectedFeature.type === 'dam' ? 'DAM BREACH ORIGIN' : 'HADR TACTICAL ASSET'}
+          <div className="absolute top-16 left-14 z-[500] w-80 bg-white/95 dark:bg-slate-900/95 p-4 rounded-2xl border border-slate-300 dark:border-slate-700 shadow-2xl backdrop-blur-2xl animate-in fade-in zoom-in-95 text-slate-900 dark:text-white">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+              <span className="text-[10.5px] font-mono font-black uppercase tracking-widest text-blue-600 dark:text-cyan-400 flex items-center gap-1.5">
+                {selectedFeature.type === 'dam' ? <Building2 size={14} className="text-red-600" /> :
+                 selectedFeature.type === 'shelter' ? <Tent size={14} className="text-emerald-600" /> :
+                 selectedFeature.type === 'hospital' ? <HeartPulse size={14} className="text-rose-600" /> :
+                 selectedFeature.type === 'route' ? <Navigation size={14} className="text-emerald-600" /> :
+                 selectedFeature.type === 'roadblock' ? <AlertOctagon size={14} className="text-red-600" /> :
+                 <MapPin size={14} className="text-blue-600" />}
+                {selectedFeature.type === 'dam' ? 'DAM BREACH ORIGIN' : 'TACTICAL SITE ASSET'}
               </span>
               <button 
                 onClick={() => setSelectedFeature(null)}
-                className="text-slate-400 hover:text-white p-1 cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 cursor-pointer"
               >
-                <X size={14} />
+                <X size={15} />
               </button>
             </div>
 
             {/* Feature Content */}
-            <div className="mt-2 space-y-2 text-xs">
-              <h3 className="text-sm font-bold text-slate-100">
+            <div className="mt-2.5 space-y-2 text-xs">
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
                 {selectedFeature.data.name}
               </h3>
 
               {selectedFeature.type === 'dam' && (
-                <div className="space-y-1 font-mono text-[10.5px]">
+                <div className="space-y-1 font-mono text-[11px]">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Breach State:</span>
-                    <span className="text-rose-400 font-bold">{selectedFeature.data.status}</span>
+                    <span className="text-slate-600 dark:text-slate-400 font-semibold">Breach Status:</span>
+                    <span className="text-rose-600 dark:text-rose-400 font-bold">{selectedFeature.data.status}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Breach Width:</span>
-                    <span className="text-cyan-300 font-bold">{selectedFeature.data.breachWidth}</span>
+                    <span className="text-slate-600 dark:text-slate-400 font-semibold">Breach Width:</span>
+                    <span className="text-blue-600 dark:text-blue-400 font-bold">{selectedFeature.data.breachWidth}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Peak Hydraulic Head:</span>
-                    <span className="text-amber-300 font-bold">{selectedFeature.data.peakHead}</span>
+                    <span className="text-slate-600 dark:text-slate-400 font-semibold">Hydraulic Head:</span>
+                    <span className="text-amber-600 dark:text-amber-300 font-bold">{selectedFeature.data.peakHead}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Peak Discharge:</span>
-                    <span className="text-red-400 font-bold">{selectedFeature.data.peakDischarge}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Full Reservoir Level:</span>
-                    <span className="text-slate-200">{selectedFeature.data.fullReservoirLevel}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Hydrodynamic Stress:</span>
-                    <span className="text-emerald-400 font-bold">{selectedFeature.data.hydrodynamicForce}</span>
+                    <span className="text-slate-600 dark:text-slate-400 font-semibold">Peak Discharge (Q):</span>
+                    <span className="text-red-600 dark:text-red-400 font-bold">{selectedFeature.data.peakDischarge}</span>
                   </div>
                 </div>
               )}
 
               {selectedFeature.type === 'shelter' && (
-                <div className="space-y-1 font-mono text-[10.5px]">
+                <div className="space-y-1 font-mono text-[11px]">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Elevation:</span>
-                    <span className="text-emerald-300 font-bold">{selectedFeature.data.elevationM}</span>
+                    <span className="text-slate-600 dark:text-slate-400 font-semibold">Elevation:</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">{selectedFeature.data.elevationM}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Capacity / Available:</span>
-                    <span className="text-cyan-300 font-bold">{selectedFeature.data.capacity} / {selectedFeature.data.available} beds</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Potable Water:</span>
-                    <span className="text-slate-200">{selectedFeature.data.waterLitres}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Food Supplies:</span>
-                    <span className="text-slate-200">{selectedFeature.data.foodPacks}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Medical Post:</span>
-                    <span className="text-emerald-400 font-bold">{selectedFeature.data.medicalPost}</span>
-                  </div>
-                  <div className="flex justify-between text-[9.5px] text-slate-400 pt-1 border-t border-slate-800">
-                    <span>Officer: {selectedFeature.data.inCharge}</span>
-                    <span className="text-cyan-400">{selectedFeature.data.phone}</span>
-                  </div>
-                </div>
-              )}
-
-              {selectedFeature.type === 'hospital' && (
-                <div className="space-y-1 font-mono text-[10.5px]">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Status:</span>
-                    <span className="text-rose-400 font-bold">{selectedFeature.data.status}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Alert Protocol:</span>
-                    <span className="text-amber-300 font-bold">{selectedFeature.data.alertLevel}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">ICU &amp; General:</span>
-                    <span className="text-slate-200">{selectedFeature.data.icuBeds}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Ambulance Fleet:</span>
-                    <span className="text-emerald-300">{selectedFeature.data.ambulances}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Power Backup:</span>
-                    <span className="text-slate-200">{selectedFeature.data.generator}</span>
+                    <span className="text-slate-600 dark:text-slate-400 font-semibold">Available Capacity:</span>
+                    <span className="text-blue-600 dark:text-blue-400 font-bold">{selectedFeature.data.capacity} / {selectedFeature.data.available} beds</span>
                   </div>
                 </div>
               )}
 
               {selectedFeature.type === 'settlement' && (
-                <div className="space-y-1 font-mono text-[10.5px]">
+                <div className="space-y-1 font-mono text-[11px]">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Wave Arrival Time:</span>
-                    <span className={`font-bold ${currentTimeMin >= selectedFeature.data.arrivalMin ? 'text-red-400' : 'text-amber-300'}`}>
-                      {currentTimeMin >= selectedFeature.data.arrivalMin ? 'INUNDATED NOW' : `Surge in ${selectedFeature.data.arrivalMin - currentTimeMin} min`}
+                    <span className="text-slate-600 dark:text-slate-400 font-semibold">Wave Arrival Time:</span>
+                    <span className={`font-bold ${simulatedWaterLevel >= 2.0 ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                      {simulatedWaterLevel >= 2.0 ? 'INUNDATED NOW' : `Surge Wave in T-${Math.max(5, 45 - Math.round(simulatedWaterLevel * 8))}m`}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Population at Risk:</span>
-                    <span className="text-cyan-300 font-bold">{selectedFeature.data.pop.toLocaleString()} residents</span>
+                    <span className="text-slate-600 dark:text-slate-400 font-semibold">Population at Risk:</span>
+                    <span className="text-blue-600 dark:text-blue-400 font-bold">{selectedFeature.data.pop?.toLocaleString()} residents</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Vulnerable (Infant/Elderly):</span>
-                    <span className="text-rose-300 font-bold">{selectedFeature.data.vulnerable} persons</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Distance from Dam:</span>
-                    <span className="text-slate-200">{selectedFeature.data.distKm} km downstream</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Peak Hazard Level:</span>
-                    <span className="text-amber-400 font-bold">{selectedFeature.data.hazard}</span>
+                    <span className="text-slate-600 dark:text-slate-400 font-semibold">Downstream Distance:</span>
+                    <span className="text-slate-800 dark:text-slate-200">{selectedFeature.data.distKm} km</span>
                   </div>
                 </div>
               )}
 
               {/* Action Buttons */}
-              <div className="pt-2 border-t border-cyan-500/20 flex gap-2">
+              <div className="pt-2.5 border-t border-slate-200 dark:border-slate-800 flex gap-2">
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(`${selectedFeature.data.lat}, ${selectedFeature.data.lon}`);
                     setExportToast({ type: 'success', message: 'GPS coordinates copied to clipboard!' });
                     setTimeout(() => setExportToast(null), 3000);
                   }}
-                  className="flex-1 py-1.5 rounded-lg bg-[#0d222e] hover:bg-[#123040] border border-cyan-500/30 text-[10px] font-bold text-cyan-300 flex items-center justify-center gap-1 transition-all cursor-pointer"
+                  className="flex-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                 >
-                  <MapPin size={11} /> Copy GPS
+                  <MapPin size={13} /> Copy GPS
                 </button>
 
                 <button
-                  onClick={() => {
-                    setIsBroadcastModalOpen(true);
-                  }}
-                  className="flex-1 py-1.5 rounded-lg bg-red-950/80 hover:bg-red-900 border border-red-500/40 text-[10px] font-bold text-red-300 flex items-center justify-center gap-1 transition-all cursor-pointer"
+                  onClick={() => setIsBroadcastModalOpen(true)}
+                  className="flex-1 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow"
                 >
-                  <Radio size={11} /> Dispatch Alert
+                  <Radio size={13} /> Dispatch Alert
                 </button>
               </div>
             </div>
           </div>
         )}
-
-        {/* 6. Floating Right Telemetry & Stats Sidebar */}
-        {!focusMapMode && (
-          <div className="absolute top-16 right-4 z-[400] w-64 max-w-full space-y-2 pointer-events-auto">
-            {/* Simulation Status Card */}
-            <div className="glass-panel p-2.5 rounded-2xl border border-cyan-500/30 shadow-2xl text-xs space-y-1.5">
-              <div className="flex items-center justify-between pb-1 border-b border-cyan-500/15">
-                <span className="font-bold text-slate-200 text-xs">Simulation Status</span>
-                <span className="text-[9px] font-mono font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <Check size={9} /> Completed
-                </span>
-              </div>
-              <div className="space-y-0.5 font-mono text-[10px]">
-                <div className="flex justify-between text-slate-400">
-                  <span>Dam</span>
-                  <span className="text-cyan-300 font-bold truncate max-w-[130px] text-right" title={damName}>{damName}</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Model</span>
-                  <span className="text-slate-100 font-bold">{solver}</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Time Since Breach</span>
-                  <span className="text-cyan-400 font-bold">{currentTimeMin} min</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Life-Saving Downstream Settlement Arrival Tracker */}
-            <div className="glass-panel p-2.5 rounded-2xl border border-cyan-500/30 shadow-2xl text-xs space-y-1.5">
-              <div className="flex items-center justify-between pb-1 border-b border-cyan-500/15">
-                <span className="font-bold text-slate-200 text-xs">Downstream Wave Arrival</span>
-                <span className="text-[8.5px] font-mono text-cyan-400">Live Scrubber</span>
-              </div>
-              <div className="space-y-1 max-h-32 overflow-y-auto custom-scrollbar pr-1 text-[9.5px] font-mono">
-                {settlements.filter(s => !s.isWater).map((s, idx) => {
-                  const isHit = currentTimeMin >= s.arrivalMin;
-                  const minDiff = s.arrivalMin - currentTimeMin;
-                  return (
-                    <div 
-                      key={idx}
-                      onClick={() => {
-                        setFlyTarget({ lat: s.lat, lon: s.lon });
-                        setSelectedFeature({ type: 'settlement', data: s });
-                      }}
-                      className="p-1 px-1.5 rounded-lg bg-[#07131e]/80 hover:bg-[#0c2233] border border-cyan-500/15 flex items-center justify-between cursor-pointer transition-colors"
-                    >
-                      <div className="truncate max-w-[110px]">
-                        <span className="text-slate-200 font-bold">{s.name}</span>
-                        <span className="text-slate-500 text-[8px] ml-1">({s.distKm}km)</span>
-                      </div>
-                      {isHit ? (
-                        <span className="text-[8px] font-bold text-red-400 bg-red-950/60 px-1.5 py-0.2 rounded border border-red-500/30">
-                          INUNDATED
-                        </span>
-                      ) : (
-                        <span className={`text-[8px] font-bold px-1.5 py-0.2 rounded border ${
-                          minDiff <= 20 ? 'bg-amber-950/60 text-amber-300 border-amber-500/40 animate-pulse' : 'bg-cyan-950/60 text-cyan-300 border-cyan-500/30'
-                        }`}>
-                          T-{minDiff}m
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Flood Statistics (Current Time) */}
-            <div className="glass-panel p-2.5 rounded-2xl border border-cyan-500/30 shadow-2xl text-xs space-y-1.5">
-              <div className="flex items-center justify-between pb-1 border-b border-cyan-500/15">
-                <span className="font-bold text-slate-200 text-xs">
-                  Flood Stats <span className="text-[9px] font-normal text-slate-400">(T={currentTimeMin}m)</span>
-                </span>
-                <ResultProvenanceBadge provenance={effectiveProvenance} variant="chart-tag" />
-              </div>
-              <div className="space-y-0.5 text-[10px]">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400 flex items-center gap-1">
-                    <span className="text-cyan-400">🌊</span> Inundated Area
-                  </span>
-                  <span className="font-mono font-bold text-cyan-300">{currentArea} km²</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400 flex items-center gap-1">
-                    <span className="text-blue-400">⚓</span> Max Depth
-                  </span>
-                  <span className="font-mono font-bold text-blue-300">{currentDepth} m</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400 flex items-center gap-1">
-                    <span className="text-teal-400">⚡</span> Max Velocity
-                  </span>
-                  <span className="font-mono font-bold text-teal-300">{currentVelocity} m/s</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400 flex items-center gap-1">
-                    <span className="text-rose-400">👥</span> Exposed Citizens
-                  </span>
-                  <span className="font-mono font-bold text-rose-300">{currentPopulation}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 7. Bottom Timeline & Real-Time Telemetry HUD Bar */}
-        <div className="absolute bottom-3 left-4 right-4 z-[400] pointer-events-none">
-          <div className="pointer-events-auto glass-panel p-2.5 px-4 rounded-2xl border border-cyan-500/30 shadow-[0_15px_50px_rgba(0,0,0,0.8)] flex flex-col md:flex-row items-center justify-between gap-3">
-            
-            {/* Timeline Playback Controls */}
-            <div className="flex items-center gap-3 w-full md:w-auto">
-              <button
-                onClick={() => setIsPlaying(!isPlaying)}
-                className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold transition-all cursor-pointer ${
-                  isPlaying 
-                    ? 'bg-amber-500 text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.5)]' 
-                    : 'bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.5)] hover:scale-105'
-                }`}
-              >
-                {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
-              </button>
-
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-mono font-bold text-cyan-400 whitespace-nowrap">
-                  T+{currentTimeMin}m
-                </span>
-                <input 
-                  type="range"
-                  min="0"
-                  max="120"
-                  value={currentTimeMin}
-                  onChange={(e) => setCurrentTimeMin(Number(e.target.value))}
-                  className="w-36 sm:w-48 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
-                />
-              </div>
-
-              <div className="flex items-center gap-1 bg-[#090f1d] p-0.5 rounded-lg border border-cyan-500/20 text-[10px] font-mono">
-                {[1, 2, 5].map(s => (
-                  <button
-                    key={s}
-                    onClick={() => setPlaybackSpeed(s)}
-                    className={`px-1.5 py-0.5 rounded transition-all cursor-pointer ${playbackSpeed === s ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'}`}
-                  >
-                    {s}x
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Live Cursor Telemetry Stream */}
-            <div className="flex items-center gap-4 text-[10.5px] font-mono text-slate-300">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                <span>Depth: <strong className="text-cyan-300">{cursorInfo.depth}m</strong></span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                <span>Velocity: <strong className="text-amber-300">{cursorInfo.velocity}m/s</strong></span>
-              </div>
-              <div className="flex items-center gap-1.5 hidden sm:flex">
-                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                <span>Arrival: <strong className="text-emerald-300">{cursorInfo.arrivalTime}m</strong></span>
-              </div>
-              <div className="text-[9.5px] text-slate-400 hidden lg:block">
-                GPS: {cursorInfo.lat}°N, {cursorInfo.lon}°E
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* 8. Emergency Multi-Lingual Broadcast Modal */}

@@ -184,11 +184,11 @@ export default function SolverComparison() {
       </div>
 
       {/* Comparison Solver Provenance Status Banner */}
-      <div className="p-4 rounded-xl bg-[#070c18] border border-cyan-500/25 grid grid-cols-1 md:grid-cols-2 gap-3 shadow-lg">
-        <div className="flex items-center justify-between p-3 rounded-lg bg-cyan-950/20 border border-cyan-500/30">
+      <div className="p-4 rounded-xl bg-white dark:bg-[#070c18] border border-slate-200 dark:border-cyan-500/25 grid grid-cols-1 md:grid-cols-2 gap-3 shadow-xs dark:shadow-lg">
+        <div className="flex items-center justify-between p-3 rounded-lg bg-cyan-50/70 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-500/30">
           <div className="flex items-center gap-2">
-            <Cpu size={16} className="text-cyan-400" />
-            <span className="text-xs font-bold text-slate-200">DualSPHysics (3D GPU SPH)</span>
+            <Cpu size={16} className="text-cyan-600 dark:text-cyan-400" />
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">DualSPHysics (3D GPU SPH)</span>
           </div>
           <ResultProvenanceBadge 
             provenance={comparisonData?.dualsphysics_provenance}
@@ -197,10 +197,10 @@ export default function SolverComparison() {
           />
         </div>
 
-        <div className="flex items-center justify-between p-3 rounded-lg bg-teal-950/20 border border-teal-500/30">
+        <div className="flex items-center justify-between p-3 rounded-lg bg-teal-50/70 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-500/30">
           <div className="flex items-center gap-2">
-            <Globe size={16} className="text-teal-400" />
-            <span className="text-xs font-bold text-slate-200">Delft3D-FLOW (2D SWE CPU)</span>
+            <Globe size={16} className="text-teal-600 dark:text-teal-400" />
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Delft3D-FLOW (2D SWE CPU)</span>
           </div>
           <ResultProvenanceBadge 
             provenance={comparisonData?.delft3d_provenance}
@@ -211,22 +211,22 @@ export default function SolverComparison() {
       </div>
 
       {/* Selected Dam Metadata Ribbon */}
-      <div className="glass-card p-4 rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-cyan-950/20 via-[#0a1120] to-teal-950/20 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+      <div className="glass-card p-4 rounded-2xl border border-slate-200 dark:border-cyan-500/20 bg-slate-50 dark:bg-gradient-to-r dark:from-cyan-950/20 dark:via-[#0a1120] dark:to-teal-950/20 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono shadow-xs">
         <div>
-          <span className="text-slate-500 block text-[10px] uppercase">River Basin</span>
-          <span className="text-slate-200 font-bold">{activeDam.river || 'Regional River'}</span>
+          <span className="text-slate-500 dark:text-slate-400 block text-[10px] uppercase font-semibold">River Basin</span>
+          <span className="text-slate-900 dark:text-slate-200 font-bold">{activeDam.river || 'Regional River'}</span>
         </div>
         <div>
-          <span className="text-slate-500 block text-[10px] uppercase">Dam Height</span>
-          <span className="text-cyan-300 font-bold">{activeDam.height_m} m</span>
+          <span className="text-slate-500 dark:text-slate-400 block text-[10px] uppercase font-semibold">Dam Height</span>
+          <span className="text-cyan-700 dark:text-cyan-300 font-bold">{activeDam.height_m} m</span>
         </div>
         <div>
-          <span className="text-slate-500 block text-[10px] uppercase">Gross Reservoir Storage</span>
-          <span className="text-teal-300 font-bold">{(activeDam.capacity_m3 / 1e6).toFixed(0)} MCM</span>
+          <span className="text-slate-500 dark:text-slate-400 block text-[10px] uppercase font-semibold">Gross Reservoir Storage</span>
+          <span className="text-teal-700 dark:text-teal-300 font-bold">{(activeDam.capacity_m3 / 1e6).toFixed(0)} MCM</span>
         </div>
         <div>
-          <span className="text-slate-500 block text-[10px] uppercase">Geographic Coordinates</span>
-          <span className="text-slate-300 font-bold">{activeDam.lat.toFixed(4)}°N, {activeDam.lon.toFixed(4)}°E</span>
+          <span className="text-slate-500 dark:text-slate-400 block text-[10px] uppercase font-semibold">Geographic Coordinates</span>
+          <span className="text-slate-800 dark:text-slate-300 font-bold">{activeDam.lat.toFixed(4)}°N, {activeDam.lon.toFixed(4)}°E</span>
         </div>
       </div>
 
@@ -456,52 +456,52 @@ export default function SolverComparison() {
       </div>
 
       {/* Comprehensive Multi-Parameter Benchmark Matrix Table */}
-      <div className="glass-card rounded-2xl overflow-hidden border border-cyan-500/25 shadow-2xl">
-        <div className="p-4 px-6 border-b border-cyan-500/15 bg-gradient-to-r from-cyan-950/40 via-[#0d1527] to-transparent flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm font-bold text-slate-100">
-            <BarChart3 size={16} className="text-cyan-400" />
+      <div className="rounded-2xl overflow-hidden border border-sky-200 dark:border-cyan-500/25 bg-white dark:bg-[#08101d] shadow-[0_8px_30px_rgba(14,165,233,0.08)] dark:shadow-2xl">
+        <div className="p-4 px-6 border-b border-sky-200/80 dark:border-cyan-500/15 bg-gradient-to-r from-sky-100/60 via-white to-sky-50/40 dark:from-cyan-950/40 dark:via-[#0d1527] dark:to-transparent flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-slate-100">
+            <BarChart3 size={16} className="text-sky-600 dark:text-cyan-400" />
             <span>Multi-Parameter Engineering Benchmark Matrix</span>
           </div>
-          <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/30">
+          <span className="text-[10px] font-mono font-bold text-sky-800 bg-sky-100 border border-sky-300 dark:text-cyan-400 dark:bg-cyan-950 px-2 py-0.5 rounded dark:border-cyan-500/30">
             HYDRODYNAMIC COMPARISON SPEC
           </span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-[#090f1d] text-[11px] uppercase tracking-wider text-slate-400 border-b border-cyan-500/15 font-semibold">
+          <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+            <thead className="bg-sky-50/80 dark:bg-[#090f1d] text-[11px] uppercase tracking-wider text-slate-700 dark:text-slate-400 border-b border-sky-200 dark:border-cyan-500/15 font-bold">
               <tr>
                 <th className="p-4 pl-6 w-1/4">Evaluation Parameter</th>
-                <th className="p-4 w-1/4 text-cyan-300">
+                <th className="p-4 w-1/4 text-sky-900 dark:text-cyan-300 font-extrabold">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <Cpu size={14} className="text-cyan-400" />
+                    <Cpu size={14} className="text-sky-600 dark:text-cyan-400" />
                     <span>DualSPHysics (3D SPH)</span>
                     <ResultProvenanceBadge provenance={comparisonData?.dualsphysics_provenance} solver="DualSPHysics" variant="chart-tag" />
                   </div>
                 </th>
-                <th className="p-4 w-1/4 text-teal-300">
+                <th className="p-4 w-1/4 text-teal-900 dark:text-teal-300 font-extrabold">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <Globe size={14} className="text-teal-400" />
+                    <Globe size={14} className="text-teal-600 dark:text-teal-400" />
                     <span>Delft3D-FLOW (2D SWE)</span>
                     <ResultProvenanceBadge provenance={comparisonData?.delft3d_provenance} solver="Delft3D" variant="chart-tag" />
                   </div>
                 </th>
-                <th className="p-4 pr-6 w-1/4 text-slate-400">Variance & Operational Insight</th>
+                <th className="p-4 pr-6 w-1/4 text-slate-700 dark:text-slate-400">Variance &amp; Operational Insight</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-cyan-500/10 font-normal">
+            <tbody className="divide-y divide-sky-100 dark:divide-cyan-500/10 font-normal">
               {comparisonData?.parameters_comparison?.map((row, idx) => (
-                <tr key={idx} className="hover:bg-cyan-950/20 transition-colors">
-                  <td className="p-4 pl-6 font-bold text-slate-100">
+                <tr key={idx} className="hover:bg-sky-50/80 dark:hover:bg-cyan-950/20 transition-colors">
+                  <td className="p-4 pl-6 font-bold text-slate-900 dark:text-slate-100">
                     {row.parameter}
                   </td>
-                  <td className="p-4 font-mono text-cyan-200">
+                  <td className="p-4 font-mono font-bold text-sky-800 dark:text-cyan-200">
                     {row.dualsphysics}
                   </td>
-                  <td className="p-4 font-mono text-teal-200">
+                  <td className="p-4 font-mono font-bold text-teal-800 dark:text-teal-200">
                     {row.delft3d}
                   </td>
-                  <td className="p-4 pr-6 text-slate-400 leading-relaxed text-[11px]">
+                  <td className="p-4 pr-6 text-slate-600 dark:text-slate-300 leading-relaxed text-[11px] font-medium">
                     {row.variance || row.recommended_for}
                   </td>
                 </tr>
@@ -514,90 +514,90 @@ export default function SolverComparison() {
       {/* Radar Matrix / Strategic Profile Summaries */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* DualSPHysics Score Profile */}
-        <div className="glass-card rounded-2xl p-5 border border-cyan-500/30 space-y-3 bg-gradient-to-br from-cyan-950/30 to-[#070c18]">
+        <div className="rounded-2xl p-5 border border-sky-200 dark:border-cyan-500/30 space-y-3 bg-gradient-to-br from-sky-50/90 via-white to-sky-100/50 dark:from-cyan-950/30 dark:to-[#070c18] shadow-[0_8px_30px_rgba(14,165,233,0.08)] dark:shadow-xl">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 font-bold text-sm text-cyan-300">
-              <Cpu size={16} className="text-cyan-400" />
+            <div className="flex items-center gap-2 font-extrabold text-sm text-sky-900 dark:text-cyan-300">
+              <Cpu size={16} className="text-sky-600 dark:text-cyan-400" />
               <span>DualSPHysics Profile Summary</span>
             </div>
-            <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/30">
+            <span className="text-[10px] font-mono font-bold text-sky-800 bg-sky-100 border border-sky-300 dark:text-cyan-400 dark:bg-cyan-950 px-2 py-0.5 rounded dark:border-cyan-500/30">
               NEAR-FIELD MASTER
             </span>
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Optimal for the <strong className="text-cyan-300">first 0–3 km zone</strong> downstream of the breach. Accurately simulates violent free-surface splashes, wall shear stresses, structural impact forces on bridges/spillways, and vortex jets.
+          <p className="text-xs text-slate-700 dark:text-slate-400 leading-relaxed font-medium">
+            Optimal for the <strong className="text-sky-800 dark:text-cyan-300 font-bold">first 0–3 km zone</strong> downstream of the breach. Accurately simulates violent free-surface splashes, wall shear stresses, structural impact forces on bridges/spillways, and vortex jets.
           </p>
           <div className="space-y-2 pt-1 font-mono text-xs">
             <div>
-              <div className="flex justify-between text-[11px] text-slate-300 mb-0.5">
+              <div className="flex justify-between text-[11px] text-slate-700 dark:text-slate-300 mb-0.5 font-semibold">
                 <span>Near-Field Impact Precision</span>
-                <span className="text-cyan-400 font-bold">98/100</span>
+                <span className="text-sky-700 dark:text-cyan-400 font-bold">98/100</span>
               </div>
-              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-cyan-400 w-[98%]"></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-[11px] text-slate-300 mb-0.5">
-                <span>Turbulence & Shockwave (FSI)</span>
-                <span className="text-cyan-400 font-bold">95/100</span>
-              </div>
-              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-cyan-400 w-[95%]"></div>
+              <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-sky-500 dark:bg-cyan-400 w-[98%]"></div>
               </div>
             </div>
             <div>
-              <div className="flex justify-between text-[11px] text-slate-300 mb-0.5">
+              <div className="flex justify-between text-[11px] text-slate-700 dark:text-slate-300 mb-0.5 font-semibold">
+                <span>Turbulence &amp; Shockwave (FSI)</span>
+                <span className="text-sky-700 dark:text-cyan-400 font-bold">95/100</span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-sky-500 dark:bg-cyan-400 w-[95%]"></div>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[11px] text-slate-700 dark:text-slate-300 mb-0.5 font-semibold">
                 <span>GPU Compute Velocity (NVIDIA CUDA)</span>
-                <span className="text-cyan-400 font-bold">92/100</span>
+                <span className="text-sky-700 dark:text-cyan-400 font-bold">92/100</span>
               </div>
-              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-cyan-400 w-[92%]"></div>
+              <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-sky-500 dark:bg-cyan-400 w-[92%]"></div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Delft3D Score Profile */}
-        <div className="glass-card rounded-2xl p-5 border border-teal-500/30 space-y-3 bg-gradient-to-br from-teal-950/30 to-[#070c18]">
+        <div className="rounded-2xl p-5 border border-teal-200 dark:border-teal-500/30 space-y-3 bg-gradient-to-br from-teal-50/90 via-white to-teal-100/50 dark:from-teal-950/30 dark:to-[#070c18] shadow-[0_8px_30px_rgba(20,184,166,0.08)] dark:shadow-xl">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 font-bold text-sm text-teal-300">
-              <Globe size={17} className="text-teal-400" />
+            <div className="flex items-center gap-2 font-extrabold text-sm text-teal-900 dark:text-teal-300">
+              <Globe size={17} className="text-teal-600 dark:text-teal-400" />
               <span>Delft3D-FLOW Profile Summary</span>
             </div>
-            <span className="text-[10px] font-mono text-teal-400 bg-teal-950 px-2 py-0.5 rounded border border-teal-500/30">
+            <span className="text-[10px] font-mono font-bold text-teal-800 bg-teal-100 border border-teal-300 dark:text-teal-400 dark:bg-teal-950 px-2 py-0.5 rounded dark:border-teal-500/30">
               FAR-FIELD BASIN MASTER
             </span>
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Optimal for the <strong className="text-teal-300">3–80 km regional basin</strong> downstream. Computes broad floodplain submersion, Manning friction bed attenuation, and multi-hour wave arrival timelines for district disaster response.
+          <p className="text-xs text-slate-700 dark:text-slate-400 leading-relaxed font-medium">
+            Optimal for the <strong className="text-teal-800 dark:text-teal-300 font-bold">3–80 km regional basin</strong> downstream. Computes broad floodplain submersion, Manning friction bed attenuation, and multi-hour wave arrival timelines for district disaster response.
           </p>
           <div className="space-y-2 pt-1 font-mono text-xs">
             <div>
-              <div className="flex justify-between text-[11px] text-slate-300 mb-0.5">
+              <div className="flex justify-between text-[11px] text-slate-700 dark:text-slate-300 mb-0.5 font-semibold">
                 <span>Far-Field Basin Scalability</span>
-                <span className="text-teal-400 font-bold">96/100</span>
+                <span className="text-teal-700 dark:text-teal-400 font-bold">96/100</span>
               </div>
-              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-teal-400 w-[96%]"></div>
+              <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-teal-500 dark:bg-teal-400 w-[96%]"></div>
               </div>
             </div>
             <div>
-              <div className="flex justify-between text-[11px] text-slate-300 mb-0.5">
+              <div className="flex justify-between text-[11px] text-slate-700 dark:text-slate-300 mb-0.5 font-semibold">
                 <span>Long-Horizon Flood Routing</span>
-                <span className="text-teal-400 font-bold">94/100</span>
+                <span className="text-teal-700 dark:text-teal-400 font-bold">94/100</span>
               </div>
-              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-teal-400 w-[94%]"></div>
+              <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-teal-500 dark:bg-teal-400 w-[94%]"></div>
               </div>
             </div>
             <div>
-              <div className="flex justify-between text-[11px] text-slate-300 mb-0.5">
+              <div className="flex justify-between text-[11px] text-slate-700 dark:text-slate-300 mb-0.5 font-semibold">
                 <span>Memory Overhead Efficiency</span>
-                <span className="text-teal-400 font-bold">89/100</span>
+                <span className="text-teal-700 dark:text-teal-400 font-bold">89/100</span>
               </div>
-              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-teal-400 w-[89%]"></div>
+              <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-teal-500 dark:bg-teal-400 w-[89%]"></div>
               </div>
             </div>
           </div>

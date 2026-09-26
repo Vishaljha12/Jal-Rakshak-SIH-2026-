@@ -161,26 +161,26 @@ export default function Simulation() {
   return (
     <div className="p-6 md:p-8 max-w-6xl mx-auto pb-24 space-y-7">
       {/* Solver Navigation Hub Pills */}
-      <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-[#0a0f1d] border border-cyan-500/20 text-xs font-semibold shadow-lg">
+      <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-[#0a0f1d] border border-slate-200 dark:border-cyan-500/20 text-xs font-semibold shadow-xs dark:shadow-lg">
         <span className="text-slate-500 uppercase tracking-widest text-[10px] px-3 font-bold">Solver Suites:</span>
         <span className="bg-cyan-500 text-slate-950 px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-[0_0_12px_rgba(6,182,212,0.4)]">
           <Play size={13} /> Unified Core Dispatcher
         </span>
         <Link 
           to="/dualsphysics" 
-          className="text-slate-400 hover:text-cyan-300 hover:bg-slate-800/60 px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5"
+          className="text-slate-600 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5 font-medium"
         >
-          <Waves size={13} className="text-cyan-400" /> DualSPHysics (3D SPH)
+          <Waves size={13} className="text-cyan-500 dark:text-cyan-400" /> DualSPHysics (3D SPH)
         </Link>
         <Link 
           to="/delft3d" 
-          className="text-slate-400 hover:text-teal-300 hover:bg-slate-800/60 px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5"
+          className="text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5 font-medium"
         >
-          <Globe size={13} className="text-teal-400" /> Delft3D-FLOW (2D SWE)
+          <Globe size={13} className="text-teal-500 dark:text-teal-400" /> Delft3D-FLOW (2D SWE)
         </Link>
         <Link 
           to="/solver-comparison" 
-          className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 px-3.5 py-1.5 rounded-xl border border-amber-500/20 transition-all flex items-center gap-1.5 ml-auto"
+          className="text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-500/10 px-3.5 py-1.5 rounded-xl border border-amber-300 dark:border-amber-500/20 transition-all flex items-center gap-1.5 ml-auto font-medium"
         >
           <Activity size={13} /> Multi-Parameter Comparison
         </Link>
@@ -190,44 +190,44 @@ export default function Simulation() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-400 bg-cyan-950/60 border border-cyan-500/30 px-2.5 py-0.5 rounded-full">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-700 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200 dark:border-cyan-500/30 px-2.5 py-0.5 rounded-full font-semibold">
               Hydrodynamic Solver Hub
             </span>
-            <span className="text-slate-600">•</span>
-            <span className="text-xs text-slate-400 font-mono">DualSPHysics GPU + GEE v5.2</span>
+            <span className="text-slate-300 dark:text-slate-600">•</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">DualSPHysics GPU + GEE v5.2</span>
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-100">
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">
             Dam-Break Simulation Core
           </h1>
-          <p className="text-sm text-slate-400 mt-1 max-w-2xl">
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-2xl font-normal leading-relaxed">
             Choose a target dam or custom geographic area across India, auto-import Google Earth Engine elevation models, and solve Navier-Stokes hydrodynamic equations.
           </p>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <div className="glass-card px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs border border-emerald-500/30 text-emerald-400 font-mono">
+          <div className="glass-card px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs border border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 font-mono bg-emerald-50/50 dark:bg-transparent font-medium">
             <Cpu size={14} /> GPU Acceleration: ON
           </div>
         </div>
       </div>
 
       {/* STEP 1: Area & Dam Selector Section */}
-      <div className="glass-card rounded-2xl overflow-hidden border border-cyan-500/25 shadow-2xl">
-        <div className="p-4 px-6 border-b border-cyan-500/15 bg-gradient-to-r from-cyan-950/40 via-[#0d1527] to-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 text-sm font-bold text-cyan-300">
-            <MapPin size={18} className="text-cyan-400" />
+      <div className="glass-card rounded-2xl overflow-hidden border border-slate-200 dark:border-cyan-500/25 shadow-sm dark:shadow-2xl bg-white dark:bg-slate-900">
+        <div className="p-4 px-6 border-b border-slate-200 dark:border-cyan-500/15 bg-slate-50 dark:bg-gradient-to-r dark:from-cyan-950/40 dark:via-[#0d1527] dark:to-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 text-sm font-bold text-cyan-700 dark:text-cyan-300">
+            <MapPin size={18} className="text-cyan-600 dark:text-cyan-400" />
             <span>Step 1: Select Simulation Target Area / Dam</span>
           </div>
 
           {/* Mode Switcher Pills */}
-          <div className="flex items-center bg-[#070c18] p-1 rounded-xl border border-cyan-500/20 text-xs">
+          <div className="flex items-center bg-slate-100 dark:bg-[#070c18] p-1 rounded-xl border border-slate-200 dark:border-cyan-500/20 text-xs">
             <button
               type="button"
               onClick={() => setAreaMode('preset')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
                 areaMode === 'preset'
                   ? 'bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.4)]'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
               Indian Dams Catalog ({damsList.length})
@@ -235,10 +235,10 @@ export default function Simulation() {
             <button
               type="button"
               onClick={() => setAreaMode('custom')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
                 areaMode === 'custom'
                   ? 'bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.4)]'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
               Custom Coordinates / Area
@@ -251,25 +251,25 @@ export default function Simulation() {
             {/* Search and Filters */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
                 <input
                   type="text"
                   placeholder="Search by dam name, river, or state (e.g., Tehri, Mullaperiyar, Narmada)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#070c18] border border-cyan-500/20 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 outline-none focus:border-cyan-400 transition-colors"
+                  className="w-full bg-slate-50 dark:bg-[#070c18] border border-slate-200 dark:border-cyan-500/20 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-cyan-500 focus:bg-white dark:focus:bg-[#0a0f1d] transition-colors"
                 />
               </div>
 
               <div className="flex items-center gap-2">
-                <Filter size={14} className="text-cyan-400 shrink-0" />
+                <Filter size={14} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
                 <select
                   value={selectedStateFilter}
                   onChange={(e) => setSelectedStateFilter(e.target.value)}
-                  className="bg-[#070c18] border border-cyan-500/20 rounded-xl px-3 py-2.5 text-xs text-slate-200 outline-none focus:border-cyan-400 cursor-pointer"
+                  className="bg-slate-50 dark:bg-[#070c18] border border-slate-200 dark:border-cyan-500/20 rounded-xl px-3 py-2.5 text-xs text-slate-800 dark:text-slate-200 outline-none focus:border-cyan-500 cursor-pointer"
                 >
                   {statesList.map(st => (
-                    <option key={st} value={st} className="bg-[#0a0f1d]">{st === 'ALL' ? 'All States' : st}</option>
+                    <option key={st} value={st} className="bg-white dark:bg-[#0a0f1d] text-slate-900 dark:text-slate-100">{st === 'ALL' ? 'All States' : st}</option>
                   ))}
                 </select>
               </div>
@@ -285,40 +285,40 @@ export default function Simulation() {
                     onClick={() => handleSelectDam(dam)}
                     className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
                       isSelected
-                        ? 'bg-gradient-to-br from-cyan-950/70 to-[#0a1224] border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.25)] ring-1 ring-cyan-400'
-                        : 'bg-[#070c18]/80 hover:bg-[#0d1527] border-cyan-500/15 hover:border-cyan-500/40'
+                        ? 'bg-cyan-50/80 dark:bg-gradient-to-br dark:from-cyan-950/70 dark:to-[#0a1224] border-cyan-500 shadow-sm ring-1 ring-cyan-500'
+                        : 'bg-white dark:bg-[#070c18]/80 hover:bg-slate-50 dark:hover:bg-[#0d1527] border-slate-200 dark:border-cyan-500/15 hover:border-cyan-400'
                     }`}
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-1.5">
-                        <h4 className="font-bold text-xs text-slate-100 leading-snug">
+                        <h4 className="font-bold text-xs text-slate-900 dark:text-slate-100 leading-snug">
                           {dam.name}
                         </h4>
                         {isSelected && (
-                          <span className="w-5 h-5 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(6,182,212,0.6)]">
+                          <span className="w-5 h-5 rounded-full bg-cyan-500 text-white dark:text-slate-950 flex items-center justify-center shrink-0 shadow-sm">
                             <Check size={12} strokeWidth={3} />
                           </span>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2 text-[11px] text-cyan-400 font-medium mb-2">
+                      <div className="flex items-center gap-2 text-[11px] text-cyan-600 dark:text-cyan-400 font-semibold mb-2">
                         <Compass size={12} />
                         <span>{dam.river}</span>
-                        <span className="text-slate-600">•</span>
-                        <span className="text-slate-400">{dam.state}</span>
+                        <span className="text-slate-300 dark:text-slate-600">•</span>
+                        <span className="text-slate-600 dark:text-slate-400">{dam.state}</span>
                       </div>
 
-                      <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mb-3">
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed mb-3">
                         {dam.description}
                       </p>
                     </div>
 
-                    <div className="pt-2.5 border-t border-cyan-500/10 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                    <div className="pt-2.5 border-t border-slate-100 dark:border-cyan-500/10 flex items-center justify-between text-[10px] font-mono text-slate-500 dark:text-slate-400">
                       <div>
                         <span>Lat/Lon: </span>
-                        <strong className="text-slate-200">{dam.lat.toFixed(2)}°N, {dam.lon.toFixed(2)}°E</strong>
+                        <strong className="text-slate-800 dark:text-slate-200">{dam.lat.toFixed(2)}°N, {dam.lon.toFixed(2)}°E</strong>
                       </div>
-                      <div className="text-cyan-300 font-semibold">
+                      <div className="text-cyan-600 dark:text-cyan-300 font-bold">
                         {(dam.capacity_m3 / 1000000).toFixed(0)}M m³
                       </div>
                     </div>
@@ -330,11 +330,11 @@ export default function Simulation() {
         ) : (
           /* Custom Area Coordinates Mode */
           <div className="p-6 space-y-4">
-            <div className="p-4 rounded-xl bg-cyan-950/20 border border-cyan-500/20 flex items-center gap-3">
-              <Compass size={20} className="text-cyan-400 shrink-0" />
+            <div className="p-4 rounded-xl bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-500/20 flex items-center gap-3">
+              <Compass size={20} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
               <div>
-                <h4 className="text-xs font-bold text-slate-200">Custom Geographic Domain Mode</h4>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200">Custom Geographic Domain Mode</h4>
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
                   Enter any latitude and longitude in India or worldwide. The system will slice a 30m DEM mesh via Google Earth Engine and execute hydrodynamic modeling.
                 </p>
               </div>
@@ -342,7 +342,7 @@ export default function Simulation() {
 
             {/* Quick Regional Presets */}
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
                 Quick Regional Coordinates Presets:
               </label>
               <div className="flex flex-wrap gap-2">
@@ -369,7 +369,7 @@ export default function Simulation() {
                         reservoir_volume: p.vol
                       }));
                     }}
-                    className="text-xs bg-[#070c18] hover:bg-cyan-950/40 border border-cyan-500/20 hover:border-cyan-400 px-3 py-1.5 rounded-lg text-slate-300 font-medium transition-colors"
+                    className="text-xs bg-slate-100 dark:bg-[#070c18] hover:bg-cyan-50 dark:hover:bg-cyan-950/40 border border-slate-200 dark:border-cyan-500/20 hover:border-cyan-400 px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-300 font-medium transition-colors cursor-pointer"
                   >
                     {p.name}
                   </button>
@@ -379,13 +379,13 @@ export default function Simulation() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Custom Location / Dam Name</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Custom Location / Dam Name</label>
                 <input
                   type="text"
                   name="dam_name"
                   value={formData.dam_name}
                   onChange={handleChange}
-                  className="w-full bg-[#070c18] border border-cyan-500/25 rounded-xl p-2.5 text-xs text-slate-100 font-medium outline-none focus:border-cyan-400"
+                  className="w-full bg-slate-50 dark:bg-[#070c18] border border-slate-200 dark:border-cyan-500/25 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 font-medium outline-none focus:border-cyan-500"
                 />
               </div>
             </div>
@@ -393,19 +393,19 @@ export default function Simulation() {
         )}
 
         {/* Selected Area Banner */}
-        <div className="p-4 px-6 bg-[#060a14] border-t border-cyan-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="p-4 px-6 bg-slate-50 dark:bg-[#060a14] border-t border-slate-200 dark:border-cyan-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/15 text-cyan-300 flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-lg bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 flex items-center justify-center font-bold">
               ✓
             </div>
             <div>
-              <div className="font-bold text-slate-100 flex items-center gap-2">
+              <div className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <span>Active Target: {formData.dam_name}</span>
-                <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/30">
+                <span className="text-[10px] font-mono text-cyan-800 dark:text-cyan-400 bg-cyan-100 dark:bg-cyan-950 px-2 py-0.5 rounded border border-cyan-300 dark:border-cyan-500/30 font-semibold">
                   {formData.dam_lat.toFixed(4)}°N, {formData.dam_lon.toFixed(4)}°E
                 </span>
               </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">
+              <div className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
                 Reservoir: {(formData.reservoir_volume / 1000000).toLocaleString()} Million m³ • Breach Width: {formData.breach_width}m
               </div>
             </div>
@@ -415,7 +415,7 @@ export default function Simulation() {
             type="button"
             onClick={handleImportGEE}
             disabled={isImportingDEM}
-            className="glow-cyan-btn disabled:opacity-50 text-[#070c18] font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all whitespace-nowrap self-start sm:self-auto cursor-pointer"
+            className="glow-cyan-btn disabled:opacity-50 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all whitespace-nowrap self-start sm:self-auto cursor-pointer"
           >
             {isImportingDEM ? (
               <><Loader2 size={13} className="animate-spin" /> Fetching GEE DEM...</>
@@ -451,22 +451,22 @@ export default function Simulation() {
       )}
 
       {/* STEP 2: Parameters Configuration Form */}
-      <div className="glass-card rounded-2xl overflow-hidden border border-cyan-500/20 shadow-2xl">
-        <div className="p-4 px-6 border-b border-cyan-500/15 bg-gradient-to-r from-cyan-950/30 via-[#0d1527] to-transparent flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm font-bold text-cyan-300">
-            <Sliders size={16} className="text-cyan-400" />
+      <div className="glass-card rounded-2xl overflow-hidden border border-slate-200 dark:border-cyan-500/20 shadow-sm dark:shadow-2xl bg-white dark:bg-slate-900">
+        <div className="p-4 px-6 border-b border-slate-200 dark:border-cyan-500/15 bg-slate-50 dark:bg-gradient-to-r dark:from-cyan-950/30 dark:via-[#0d1527] dark:to-transparent flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm font-bold text-cyan-700 dark:text-cyan-300">
+            <Sliders size={16} className="text-cyan-600 dark:text-cyan-400" />
             <span>Step 2: Hydrodynamic & Solver Parameters</span>
           </div>
-          <span className="text-[10px] font-mono text-slate-400">COORDINATE SYSTEM: WGS84</span>
+          <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">COORDINATE SYSTEM: WGS84</span>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Dam Lat */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex justify-between">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex justify-between">
                 <span>Dam Latitude</span>
-                <span className="text-cyan-400 font-mono">°N</span>
+                <span className="text-cyan-600 dark:text-cyan-400 font-mono">°N</span>
               </label>
               <input 
                 type="number" 
@@ -474,16 +474,16 @@ export default function Simulation() {
                 name="dam_lat" 
                 value={formData.dam_lat} 
                 onChange={handleChange} 
-                className="w-full bg-[#0d1527] border border-cyan-500/25 rounded-xl p-3 text-slate-100 font-mono text-sm focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none transition-all" 
+                className="w-full bg-slate-50 dark:bg-[#0d1527] border border-slate-200 dark:border-cyan-500/25 rounded-xl p-3 text-slate-900 dark:text-slate-100 font-mono text-sm focus:border-cyan-500 focus:bg-white dark:focus:bg-[#0a0f1d] focus:ring-1 focus:ring-cyan-500 outline-none transition-all" 
                 required 
               />
             </div>
 
             {/* Dam Lon */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex justify-between">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex justify-between">
                 <span>Dam Longitude</span>
-                <span className="text-cyan-400 font-mono">°E</span>
+                <span className="text-cyan-600 dark:text-cyan-400 font-mono">°E</span>
               </label>
               <input 
                 type="number" 
@@ -491,54 +491,54 @@ export default function Simulation() {
                 name="dam_lon" 
                 value={formData.dam_lon} 
                 onChange={handleChange} 
-                className="w-full bg-[#0d1527] border border-cyan-500/25 rounded-xl p-3 text-slate-100 font-mono text-sm focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none transition-all" 
+                className="w-full bg-slate-50 dark:bg-[#0d1527] border border-slate-200 dark:border-cyan-500/25 rounded-xl p-3 text-slate-900 dark:text-slate-100 font-mono text-sm focus:border-cyan-500 focus:bg-white dark:focus:bg-[#0a0f1d] focus:ring-1 focus:ring-cyan-500 outline-none transition-all" 
                 required 
               />
             </div>
 
             {/* Breach Width */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex justify-between">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex justify-between">
                 <span>Breach Opening Width</span>
-                <span className="text-cyan-400 font-mono">Meters (m)</span>
+                <span className="text-cyan-600 dark:text-cyan-400 font-mono">Meters (m)</span>
               </label>
               <input 
                 type="number" 
                 name="breach_width" 
                 value={formData.breach_width} 
                 onChange={handleChange} 
-                className="w-full bg-[#0d1527] border border-cyan-500/25 rounded-xl p-3 text-slate-100 font-mono text-sm focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none transition-all" 
+                className="w-full bg-slate-50 dark:bg-[#0d1527] border border-slate-200 dark:border-cyan-500/25 rounded-xl p-3 text-slate-900 dark:text-slate-100 font-mono text-sm focus:border-cyan-500 focus:bg-white dark:focus:bg-[#0a0f1d] focus:ring-1 focus:ring-cyan-500 outline-none transition-all" 
                 required 
               />
             </div>
 
             {/* Reservoir Volume */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex justify-between">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex justify-between">
                 <span>Total Reservoir Capacity</span>
-                <span className="text-cyan-400 font-mono">m³</span>
+                <span className="text-cyan-600 dark:text-cyan-400 font-mono">m³</span>
               </label>
               <input 
                 type="number" 
                 name="reservoir_volume" 
                 value={formData.reservoir_volume} 
                 onChange={handleChange} 
-                className="w-full bg-[#0d1527] border border-cyan-500/25 rounded-xl p-3 text-slate-100 font-mono text-sm focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none transition-all" 
+                className="w-full bg-slate-50 dark:bg-[#0d1527] border border-slate-200 dark:border-cyan-500/25 rounded-xl p-3 text-slate-900 dark:text-slate-100 font-mono text-sm focus:border-cyan-500 focus:bg-white dark:focus:bg-[#0a0f1d] focus:ring-1 focus:ring-cyan-500 outline-none transition-all" 
                 required 
               />
             </div>
 
             {/* DEM Source Select */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex justify-between">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex justify-between">
                 <span>GEE Terrain Elevation Source</span>
-                <span className="text-cyan-400 font-mono">30m DEM</span>
+                <span className="text-cyan-600 dark:text-cyan-400 font-mono">30m DEM</span>
               </label>
               <select 
                 name="dem_source"
                 value={formData.dem_source}
                 onChange={handleChange}
-                className="w-full bg-[#0d1527] border border-cyan-500/25 rounded-xl p-3 text-slate-100 font-medium text-sm focus:border-cyan-400 outline-none"
+                className="w-full bg-slate-50 dark:bg-[#0d1527] border border-slate-200 dark:border-cyan-500/25 rounded-xl p-3 text-slate-900 dark:text-slate-100 font-medium text-sm focus:border-cyan-500 outline-none cursor-pointer"
               >
                 <option value="SRTM">NASA SRTM 30m Global DEM (USGS/SRTMGL1_003)</option>
                 <option value="COPERNICUS">Copernicus GLO-30 Digital Elevation (COPERNICUS/DEM/GLO30)</option>
@@ -548,34 +548,34 @@ export default function Simulation() {
 
             {/* Solver Architecture Radio */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                 Computational Backend
               </label>
-              <div className="glass-card p-3 rounded-xl border border-cyan-500/40 bg-gradient-to-r from-cyan-950/40 to-transparent flex items-center justify-between">
+              <div className="glass-card p-3 rounded-xl border border-cyan-300 dark:border-cyan-500/40 bg-cyan-50/70 dark:bg-gradient-to-r dark:from-cyan-950/40 dark:to-transparent flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 flex items-center justify-center font-bold">
                     <Cpu size={18} />
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-slate-100">DualSPHysics CUDA SPH</div>
-                    <div className="text-[10px] text-cyan-400 font-mono">GPU-accelerated Navier-Stokes solver</div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-slate-100">DualSPHysics CUDA SPH</div>
+                    <div className="text-[10px] text-cyan-700 dark:text-cyan-400 font-mono">GPU-accelerated Navier-Stokes solver</div>
                   </div>
                 </div>
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]"></span>
               </div>
             </div>
           </div>
 
           {/* Action Submission */}
-          <div className="pt-4 border-t border-cyan-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="text-xs text-slate-400">
-              Selected: <strong className="text-cyan-300">{formData.dam_name}</strong> • Runtime: <strong className="text-cyan-300 font-mono">~3-5 seconds</strong>
+          <div className="pt-4 border-t border-slate-200 dark:border-cyan-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs text-slate-600 dark:text-slate-400">
+              Selected: <strong className="text-cyan-700 dark:text-cyan-300">{formData.dam_name}</strong> • Runtime: <strong className="text-cyan-700 dark:text-cyan-300 font-mono">~3-5 seconds</strong>
             </div>
 
             <button 
               type="submit" 
               disabled={status === 'submitting' || status === 'running'}
-              className="glow-cyan-btn disabled:opacity-50 disabled:cursor-not-allowed text-[#070c18] px-8 py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-[0_0_25px_rgba(6,182,212,0.4)]"
+              className="glow-cyan-btn disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 px-8 py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-[0_0_25px_rgba(6,182,212,0.4)]"
             >
               {status === 'idle' || status === 'failed' ? (
                 <><Play size={17} /> Launch Simulation Solver</>
@@ -591,15 +591,15 @@ export default function Simulation() {
 
       {/* Multi-stage Status HUD Tracker */}
       {(status === 'running' || status === 'complete' || status === 'submitting') && (
-        <div className="glass-card rounded-2xl p-6 border border-cyan-500/30 shadow-[0_10px_30px_rgba(0,0,0,0.4)]">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-cyan-500/15 mb-6">
+        <div className="glass-card rounded-2xl p-6 border border-slate-200 dark:border-cyan-500/30 shadow-md dark:shadow-[0_10px_30px_rgba(0,0,0,0.4)] bg-white dark:bg-slate-900">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-cyan-500/15 mb-6">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-lg bg-cyan-500/15 text-cyan-300">
+              <div className="p-2 rounded-lg bg-cyan-500/15 text-cyan-700 dark:text-cyan-300">
                 <Database size={18} />
               </div>
               <div>
-                <div className="text-xs text-slate-400 uppercase font-semibold">Active Simulation Dispatch</div>
-                <div className="font-mono text-sm font-bold text-cyan-300">
+                <div className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Active Simulation Dispatch</div>
+                <div className="font-mono text-sm font-bold text-cyan-700 dark:text-cyan-300">
                   {jobId || 'Allocating Worker...'} • {formData.dam_name}
                 </div>
               </div>
@@ -608,7 +608,7 @@ export default function Simulation() {
             {status === 'complete' && (
               <button 
                 onClick={() => navigate(`/dashboard?jobId=${jobId}`)} 
-                className="glow-cyan-btn text-[#070c18] px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.4)]"
+                className="glow-cyan-btn text-slate-950 px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.4)]"
               >
                 <span>View Results on Map</span>
                 <ArrowRight size={14} />
@@ -617,17 +617,17 @@ export default function Simulation() {
           </div>
           
           {/* Stepper Pipeline */}
-          <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-800">
+          <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200 dark:before:bg-slate-800">
             {/* Step 1 */}
             <div className="relative flex items-center gap-3.5">
-              <div className={`w-5 h-5 -ml-6 rounded-full flex items-center justify-center ring-4 ring-[#0a0f1d] z-10 ${
-                status !== 'idle' ? 'bg-cyan-400 text-slate-950' : 'bg-slate-800'
+              <div className={`w-5 h-5 -ml-6 rounded-full flex items-center justify-center ring-4 ring-white dark:ring-[#0a0f1d] z-10 ${
+                status !== 'idle' ? 'bg-cyan-500 text-white dark:text-slate-950' : 'bg-slate-300 dark:bg-slate-800'
               }`}>
                 <CheckCircle2 size={12} />
               </div>
               <div>
-                <div className="text-xs font-bold text-slate-200">Domain Geometry & GEE Terrain Slicing</div>
-                <div className="text-[10px] text-slate-400 font-mono">
+                <div className="text-xs font-bold text-slate-900 dark:text-slate-200">Domain Geometry & GEE Terrain Slicing</div>
+                <div className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">
                   Coordinates: {formData.dam_lat.toFixed(4)}°N, {formData.dam_lon.toFixed(4)}°E (30m mesh)
                 </div>
               </div>
@@ -635,14 +635,14 @@ export default function Simulation() {
 
             {/* Step 2 */}
             <div className="relative flex items-center gap-3.5">
-              <div className={`w-5 h-5 -ml-6 rounded-full flex items-center justify-center ring-4 ring-[#0a0f1d] z-10 ${
-                status === 'running' ? 'bg-cyan-400 text-slate-950 animate-pulse' : status === 'complete' ? 'bg-cyan-400 text-slate-950' : 'bg-slate-800'
+              <div className={`w-5 h-5 -ml-6 rounded-full flex items-center justify-center ring-4 ring-white dark:ring-[#0a0f1d] z-10 ${
+                status === 'running' ? 'bg-cyan-500 text-white dark:text-slate-950 animate-pulse' : status === 'complete' ? 'bg-cyan-500 text-white dark:text-slate-950' : 'bg-slate-300 dark:bg-slate-800'
               }`}>
                 {status === 'running' ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
               </div>
               <div>
-                <div className="text-xs font-bold text-slate-200">DualSPHysics GPU Particle Solver</div>
-                <div className="text-[10px] text-slate-400 font-mono">
+                <div className="text-xs font-bold text-slate-900 dark:text-slate-200">DualSPHysics GPU Particle Solver</div>
+                <div className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">
                   Hydrodynamic wave propagation with breach width {formData.breach_width}m
                 </div>
               </div>
@@ -650,14 +650,14 @@ export default function Simulation() {
 
             {/* Step 3 */}
             <div className="relative flex items-center gap-3.5">
-              <div className={`w-5 h-5 -ml-6 rounded-full flex items-center justify-center ring-4 ring-[#0a0f1d] z-10 ${
-                status === 'complete' ? 'bg-emerald-400 text-slate-950' : 'bg-slate-800'
+              <div className={`w-5 h-5 -ml-6 rounded-full flex items-center justify-center ring-4 ring-white dark:ring-[#0a0f1d] z-10 ${
+                status === 'complete' ? 'bg-emerald-500 text-white dark:text-slate-950' : 'bg-slate-300 dark:bg-slate-800'
               }`}>
-                {status === 'complete' ? <CheckCircle2 size={12} /> : <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>}
+                {status === 'complete' ? <CheckCircle2 size={12} /> : <div className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-600"></div>}
               </div>
               <div>
-                <div className="text-xs font-bold text-slate-200">GeoJSON Inundation & Multi-Tier Hazard Contours</div>
-                <div className="text-[10px] text-slate-400 font-mono">
+                <div className="text-xs font-bold text-slate-900 dark:text-slate-200">GeoJSON Inundation & Multi-Tier Hazard Contours</div>
+                <div className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">
                   {status === 'complete' ? 'GIS Polygon generated and ready for map visualization' : 'Awaiting solver convergence...'}
                 </div>
               </div>
@@ -668,23 +668,23 @@ export default function Simulation() {
 
       {/* Full-Spectrum Statistical Analytics & Tabulation Suite */}
       {simResult && (
-        <div className="pt-6 border-t border-cyan-500/20 space-y-4">
+        <div className="pt-6 border-t border-sky-100 dark:border-cyan-500/20 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-400 bg-cyan-950/60 border border-cyan-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-sky-800 dark:text-cyan-400 bg-sky-100 dark:bg-cyan-950/60 border border-sky-200 dark:border-cyan-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold">
                   <Activity size={11} /> Unified Simulation Analytics
                 </span>
-                <span className="text-slate-600">•</span>
-                <span className="text-xs text-slate-400 font-mono">Statistical Ledger, Histograms & Hydrographs</span>
+                <span className="text-slate-400 dark:text-slate-600">•</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400 font-mono">Statistical Ledger, Histograms & Hydrographs</span>
               </div>
-              <h2 className="text-2xl font-black text-slate-100 tracking-tight">
+              <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                 Simulated Parameters Tabulation & Statistical Suite
               </h2>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <div className="text-xs text-slate-400 font-mono">
-                Status: <span className={simResult?.provenance?.mode === 'LIVE_SOLVER' ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>
+              <div className="text-xs text-slate-600 dark:text-slate-400 font-mono">
+                Status: <span className={simResult?.provenance?.mode === 'LIVE_SOLVER' ? 'text-emerald-700 dark:text-emerald-400 font-bold' : 'text-amber-800 dark:text-amber-400 font-bold'}>
                   {status === 'running' 
                     ? 'COMPUTING...' 
                     : simResult?.provenance?.mode === 'LIVE_SOLVER' 

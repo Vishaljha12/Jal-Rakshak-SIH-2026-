@@ -206,15 +206,15 @@ export default function Validation() {
         {/* Dam & GEE Query Controls */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Dam Picker */}
-          <div className="flex items-center gap-2 bg-[#090f1d] border border-cyan-500/30 rounded-xl px-3 py-1.5 text-xs text-slate-200">
-            <MapPin size={13} className="text-cyan-400 shrink-0" />
+          <div className="flex items-center gap-2 bg-white dark:bg-[#090f1d] border border-slate-200 dark:border-cyan-500/30 rounded-xl px-3 py-1.5 text-xs text-slate-800 dark:text-slate-200 shadow-2xs">
+            <MapPin size={13} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
             <select
               value={selectedDamId}
               onChange={(e) => setSelectedDamId(e.target.value)}
-              className="bg-transparent font-bold text-cyan-300 outline-none cursor-pointer"
+              className="bg-transparent font-bold text-cyan-700 dark:text-cyan-300 outline-none cursor-pointer"
             >
               {dams.map(d => (
-                <option key={d.id} value={d.id} className="bg-[#0a0f1d] text-slate-200">
+                <option key={d.id} value={d.id} className="bg-white dark:bg-[#0a0f1d] text-slate-900 dark:text-slate-200">
                   {d.name} ({d.state})
                 </option>
               ))}
@@ -222,20 +222,20 @@ export default function Validation() {
           </div>
 
           {/* Date Picker */}
-          <div className="flex items-center gap-2 bg-[#090f1d] border border-cyan-500/30 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-300">
-            <Calendar size={13} className="text-cyan-400 shrink-0" />
+          <div className="flex items-center gap-2 bg-white dark:bg-[#090f1d] border border-slate-200 dark:border-cyan-500/30 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-700 dark:text-slate-300 shadow-2xs">
+            <Calendar size={13} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
             <input 
               type="date" 
               value={startDate} 
               onChange={(e) => setStartDate(e.target.value)}
-              className="bg-transparent text-slate-200 outline-none cursor-pointer"
+              className="bg-transparent text-slate-900 dark:text-slate-200 outline-none cursor-pointer"
             />
-            <span className="text-slate-500">to</span>
+            <span className="text-slate-400 dark:text-slate-500">to</span>
             <input 
               type="date" 
               value={endDate} 
               onChange={(e) => setEndDate(e.target.value)}
-              className="bg-transparent text-slate-200 outline-none cursor-pointer"
+              className="bg-transparent text-slate-900 dark:text-slate-200 outline-none cursor-pointer"
             />
           </div>
 

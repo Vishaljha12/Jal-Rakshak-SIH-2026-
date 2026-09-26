@@ -157,13 +157,13 @@ export default function DualSPHysicsView() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Form: SPH Parameter Workbench */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="glass-card rounded-2xl overflow-hidden border border-cyan-500/25 shadow-xl">
-            <div className="p-4 px-6 border-b border-cyan-500/15 bg-gradient-to-r from-cyan-950/40 via-[#0d1527] to-transparent flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-bold text-cyan-300">
-                <Sliders size={16} className="text-cyan-400" />
+          <div className="glass-card rounded-2xl overflow-hidden border border-slate-200 dark:border-cyan-500/25 shadow-sm dark:shadow-xl bg-white dark:bg-slate-900">
+            <div className="p-4 px-6 border-b border-slate-200 dark:border-cyan-500/15 bg-slate-50 dark:bg-gradient-to-r dark:from-cyan-950/40 dark:via-[#0d1527] dark:to-transparent flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-bold text-cyan-700 dark:text-cyan-300">
+                <Sliders size={16} className="text-cyan-600 dark:text-cyan-400" />
                 <span>SPH Particle & Boundary Controls</span>
               </div>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/30 px-2 py-0.5 rounded font-semibold">
                 GPU ACCELERATED
               </span>
             </div>
@@ -171,17 +171,17 @@ export default function DualSPHysicsView() {
             <form onSubmit={handleRunSolver} className="p-5 sm:p-6 space-y-5">
               {/* Dam Preset Selector */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <MapPin size={13} className="text-cyan-400" />
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <MapPin size={13} className="text-cyan-600 dark:text-cyan-400" />
                   <span>Target Dam / Area Preset</span>
                 </label>
                 <select
                   value={selectedDamId}
                   onChange={(e) => handleDamChange(e.target.value)}
-                  className="w-full bg-[#070c18] border border-cyan-500/25 rounded-xl p-2.5 text-xs text-slate-100 font-medium outline-none focus:border-cyan-400 cursor-pointer"
+                  className="w-full bg-slate-50 dark:bg-[#070c18] border border-slate-200 dark:border-cyan-500/25 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 font-medium outline-none focus:border-cyan-500 cursor-pointer"
                 >
                   {dams.map(d => (
-                    <option key={d.id} value={d.id} className="bg-[#0a0f1d]">
+                    <option key={d.id} value={d.id} className="bg-white dark:bg-[#0a0f1d] text-slate-900 dark:text-slate-100">
                       {d.name} ({d.state})
                     </option>
                   ))}
@@ -191,26 +191,26 @@ export default function DualSPHysicsView() {
               {/* Dam Coordinate & Capacity Row */}
               <div className="grid grid-cols-2 gap-3.5">
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-400">Dam Latitude (°N)</label>
+                  <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Dam Latitude (°N)</label>
                   <input
                     type="number"
                     step="0.0001"
                     name="dam_lat"
                     value={params.dam_lat}
                     onChange={handleInputChange}
-                    className="w-full bg-[#070c18] border border-cyan-500/20 rounded-xl p-2 text-xs font-mono text-slate-100 outline-none focus:border-cyan-400"
+                    className="w-full bg-slate-50 dark:bg-[#070c18] border border-slate-200 dark:border-cyan-500/20 rounded-xl p-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none focus:border-cyan-500"
                     required
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-400">Dam Longitude (°E)</label>
+                  <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Dam Longitude (°E)</label>
                   <input
                     type="number"
                     step="0.0001"
                     name="dam_lon"
                     value={params.dam_lon}
                     onChange={handleInputChange}
-                    className="w-full bg-[#070c18] border border-cyan-500/20 rounded-xl p-2 text-xs font-mono text-slate-100 outline-none focus:border-cyan-400"
+                    className="w-full bg-slate-50 dark:bg-[#070c18] border border-slate-200 dark:border-cyan-500/20 rounded-xl p-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none focus:border-cyan-500"
                     required
                   />
                 </div>
@@ -219,80 +219,80 @@ export default function DualSPHysicsView() {
               {/* Breach Width & Volume */}
               <div className="grid grid-cols-2 gap-3.5">
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-400">Breach Opening (m)</label>
+                  <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Breach Opening (m)</label>
                   <input
                     type="number"
                     name="breach_width"
                     value={params.breach_width}
                     onChange={handleInputChange}
-                    className="w-full bg-[#070c18] border border-cyan-500/20 rounded-xl p-2 text-xs font-mono text-slate-100 outline-none focus:border-cyan-400"
+                    className="w-full bg-slate-50 dark:bg-[#070c18] border border-slate-200 dark:border-cyan-500/20 rounded-xl p-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none focus:border-cyan-500"
                     required
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-400">Reservoir Volume (m³)</label>
+                  <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Reservoir Volume (m³)</label>
                   <input
                     type="number"
                     name="reservoir_volume"
                     value={params.reservoir_volume}
                     onChange={handleInputChange}
-                    className="w-full bg-[#070c18] border border-cyan-500/20 rounded-xl p-2 text-xs font-mono text-slate-100 outline-none focus:border-cyan-400"
+                    className="w-full bg-slate-50 dark:bg-[#070c18] border border-slate-200 dark:border-cyan-500/20 rounded-xl p-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none focus:border-cyan-500"
                     required
                   />
                 </div>
               </div>
 
               {/* SPH Specific Parameters */}
-              <div className="p-4 rounded-xl bg-cyan-950/25 border border-cyan-500/20 space-y-3.5">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
+              <div className="p-4 rounded-xl bg-cyan-50/70 dark:bg-cyan-950/25 border border-cyan-200 dark:border-cyan-500/20 space-y-3.5">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-cyan-800 dark:text-cyan-300 flex items-center gap-1.5">
                   <Cpu size={14} /> SPH Particle Discretization
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-semibold text-slate-400">Particle Spacing dp (m)</label>
+                    <label className="text-[10px] font-semibold text-slate-600 dark:text-slate-400">Particle Spacing dp (m)</label>
                     <input
                       type="number"
                       step="0.1"
                       name="particle_spacing_dp"
                       value={params.particle_spacing_dp}
                       onChange={handleInputChange}
-                      className="w-full bg-[#070c18] border border-cyan-500/30 rounded-lg p-2 text-xs font-mono text-slate-100 outline-none"
+                      className="w-full bg-white dark:bg-[#070c18] border border-slate-200 dark:border-cyan-500/30 rounded-lg p-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-semibold text-slate-400">Artificial Viscosity (α)</label>
+                    <label className="text-[10px] font-semibold text-slate-600 dark:text-slate-400">Artificial Viscosity (α)</label>
                     <input
                       type="number"
                       step="0.01"
                       name="viscosity_alpha"
                       value={params.viscosity_alpha}
                       onChange={handleInputChange}
-                      className="w-full bg-[#070c18] border border-cyan-500/30 rounded-lg p-2 text-xs font-mono text-slate-100 outline-none"
+                      className="w-full bg-white dark:bg-[#070c18] border border-slate-200 dark:border-cyan-500/30 rounded-lg p-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-semibold text-slate-400">CFL Number</label>
+                    <label className="text-[10px] font-semibold text-slate-600 dark:text-slate-400">CFL Number</label>
                     <input
                       type="number"
                       step="0.05"
                       name="cfl_number"
                       value={params.cfl_number}
                       onChange={handleInputChange}
-                      className="w-full bg-[#070c18] border border-cyan-500/30 rounded-lg p-2 text-xs font-mono text-slate-100 outline-none"
+                      className="w-full bg-white dark:bg-[#070c18] border border-slate-200 dark:border-cyan-500/30 rounded-lg p-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-semibold text-slate-400">Kernel Function</label>
+                    <label className="text-[10px] font-semibold text-slate-600 dark:text-slate-400">Kernel Function</label>
                     <input
                       type="text"
                       name="kernel_type"
                       value={params.kernel_type}
                       readOnly
-                      className="w-full bg-[#070c18] border border-cyan-500/30 rounded-lg p-2 text-xs font-mono text-slate-400 outline-none cursor-not-allowed"
+                      className="w-full bg-slate-100 dark:bg-[#070c18] border border-slate-200 dark:border-cyan-500/30 rounded-lg p-2 text-xs font-mono text-slate-500 dark:text-slate-400 outline-none cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -302,7 +302,7 @@ export default function DualSPHysicsView() {
               <button
                 type="submit"
                 disabled={status === 'running'}
-                className="w-full glow-cyan-btn disabled:opacity-50 text-[#070c18] py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.35)]"
+                className="w-full glow-cyan-btn disabled:opacity-50 text-slate-950 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.35)]"
               >
                 {status === 'running' ? (
                   <><Loader2 size={16} className="animate-spin" /> Solving 3D SPH Navier-Stokes...</>

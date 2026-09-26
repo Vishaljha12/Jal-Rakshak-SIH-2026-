@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, GeoJSON, LayersControl, LayerGroup, ZoomControl, useMap } from 'react-leaflet';
 import { getFloodGeoJSON } from '../../services/mapService';
+import { useTheme } from '../../context/ThemeContext';
 
 // Controller component to automatically pan and fit bounds to the active flood data
 function MapBoundsController({ data }) {
@@ -51,6 +52,7 @@ function MapBoundsController({ data }) {
 const defaultCenter = [16.1558, 74.6403]; // Hidkal Dam center
 
 export default function MapViewer({ showLayersControl = true, externalFloodData = null }) {
+  const { isLight } = useTheme();
   const [internalFloodData, setInternalFloodData] = useState(null);
 
   useEffect(() => {
@@ -62,6 +64,10 @@ export default function MapViewer({ showLayersControl = true, externalFloodData 
   }, [externalFloodData]);
 
   const activeFloodData = externalFloodData || internalFloodData;
+
+  const tileUrl = isLight 
+    ? 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+    : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
 
   const styleGeoJSON = (feature) => {
     const props = feature.properties || {};
@@ -82,7 +88,7 @@ export default function MapViewer({ showLayersControl = true, externalFloodData 
       <MapContainer 
         center={defaultCenter} 
         zoom={11} 
-        style={{ height: '100%', width: '100%', background: '#070c18' }}
+        style={{ height: '100%', width: '100%', background: isLight ? '#f1f5f9' : '#070c18' }}
         zoomControl={false}
       >
         <ZoomControl position="bottomright" />
@@ -90,16 +96,23 @@ export default function MapViewer({ showLayersControl = true, externalFloodData 
         
         {showLayersControl ? (
           <LayersControl position="topright">
-            <LayersControl.BaseLayer checked name="OpenStreetMap (Standard)">
+            <LayersControl.BaseLayer checked name="Tactical Canvas (Theme Adaptive)">
               <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; OpenStreetMap contributors'
+                key={isLight ? 'esri-light' : 'esri-dark'}
+                url={tileUrl}
+                attribution='Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
               />
             </LayersControl.BaseLayer>
             <LayersControl.BaseLayer name="Satellite Imagery">
               <TileLayer
                 url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
                 attribution='Tiles &copy; Esri'
+              />
+            </LayersControl.BaseLayer>
+            <LayersControl.BaseLayer name="OpenStreetMap">
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; OpenStreetMap contributors'
               />
             </LayersControl.BaseLayer>
 
@@ -136,8 +149,9 @@ export default function MapViewer({ showLayersControl = true, externalFloodData 
         ) : (
           <>
             <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; OpenStreetMap contributors'
+              key={isLight ? 'embedded-esri-light' : 'embedded-esri-dark'}
+              url={tileUrl}
+              attribution='Tiles &copy; Esri'
             />
             {activeFloodData && activeFloodData.type === 'FeatureCollection' && (
               <GeoJSON 

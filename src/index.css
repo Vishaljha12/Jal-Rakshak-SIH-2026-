@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-navy-950: #050811;
   --color-navy-900: #0a0f1d;
@@ -18,205 +20,303 @@
 
 :root {
   color-scheme: dark;
-  --bg-main: #070c12;
-  --bg-sidebar: #09121a;
-  --bg-card: #0c1620;
-  --bg-card-hover: #101e2b;
-  --border-subtle: #142533;
-  --border-bright: #1d394e;
+  --bg-main: #080d16;
+  --bg-sidebar: #0c1422;
+  --bg-card: #0f172a;
+  --border-subtle: #1e293b;
+  --border-bright: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
   --accent-mint: #10b981;
   --accent-teal: #14b8a6;
   --accent-coral: #ef4444;
   --accent-amber: #f59e0b;
 }
 
+html.light {
+  color-scheme: light;
+  --bg-main: #f0f7fc;
+  --bg-sidebar: #f8fbfe;
+  --bg-card: #ffffff;
+  --border-subtle: #dbeafe;
+  --border-bright: #bfdbfe;
+  --text-main: #0f172a;
+  --text-muted: #334155;
+  --accent-mint: #059669;
+  --accent-teal: #0284c7;
+  --accent-coral: #dc2626;
+  --accent-amber: #d97706;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  background-color: #070c12;
-  color: #e2e8f0;
+  background-color: var(--bg-main);
+  color: var(--text-main);
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  letter-spacing: -0.01em;
 }
 
-/* Production Tactical Command Center Foundations */
+code, kbd, samp, pre, .font-mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* ==========================================================================
+   TACTICAL BACKGROUND & BLUEPRINT FOUNDATIONS (AQUATIC WATER AESTHETIC)
+   ========================================================================== */
+
 .tactical-bg {
-  background-color: #070c12;
+  background-color: #080d16;
   background-image: 
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.03), transparent),
-    linear-gradient(to right, rgba(20, 184, 166, 0.015) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(20, 184, 166, 0.015) 1px, transparent 1px);
-  background-size: 100% 100%, 32px 32px, 32px 32px;
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.05), transparent),
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 36px 36px, 36px 36px;
 }
 
 .blueprint-grid {
-  background-color: #070e14;
+  background-color: #080d16;
   background-image: 
-    radial-gradient(ellipse 80% 40% at 50% -10%, rgba(20, 184, 166, 0.05) 0%, transparent 70%),
-    linear-gradient(to right, rgba(20, 184, 166, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(20, 184, 166, 0.02) 1px, transparent 1px);
+    radial-gradient(ellipse 80% 40% at 50% -10%, rgba(20, 184, 166, 0.06) 0%, transparent 70%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
   background-size: 100% 100%, 40px 40px, 40px 40px;
 }
 
-.tactical-sidebar {
-  background-color: #09121a;
-  border-right: 1px solid #142533;
+html.light .tactical-bg {
+  background-color: #f0f7fc !important;
+  background-image: 
+    radial-gradient(ellipse 90% 60% at 50% -15%, rgba(6, 182, 212, 0.12), transparent 70%),
+    radial-gradient(circle at 100% 100%, rgba(14, 165, 233, 0.08), transparent 50%),
+    linear-gradient(to right, rgba(14, 165, 233, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(14, 165, 233, 0.06) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px !important;
 }
 
+html.light .blueprint-grid {
+  background-color: #f0f7fc !important;
+  background-image: 
+    radial-gradient(ellipse 90% 50% at 50% -10%, rgba(6, 182, 212, 0.14) 0%, transparent 70%),
+    radial-gradient(circle at 0% 100%, rgba(56, 189, 248, 0.08), transparent 45%),
+    linear-gradient(to right, rgba(14, 165, 233, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(14, 165, 233, 0.08) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px !important;
+}
+
+/* ==========================================================================
+   CARDS, PANELS & GLASSMORPHISM (AQUATIC WATER AESTHETIC)
+   ========================================================================== */
+
 .tactical-card {
-  background: #0c1620;
-  border: 1px solid #142533;
-  border-radius: 0.625rem;
+  background: #0c1422;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
 }
 
 .tactical-card-hover {
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
 .tactical-card-hover:hover {
-  border-color: #1d394e;
-  background: #0f1d2a;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: #101a2c;
+  transform: translateY(-1px);
 }
 
-/* Clean, high-contrast engineering buttons */
+html.light .tactical-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(14, 165, 233, 0.16) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 4px 16px -2px rgba(14, 165, 233, 0.07) !important;
+}
+
+html.light .tactical-card-hover:hover {
+  border-color: rgba(14, 165, 233, 0.35) !important;
+  background: #f8fbfe !important;
+  box-shadow: 0 6px 20px -2px rgba(14, 165, 233, 0.12) !important;
+}
+
+.glass-card {
+  background: rgba(12, 20, 34, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+}
+
+html.light .glass-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(14, 165, 233, 0.18) !important;
+  box-shadow: 0 4px 20px -4px rgba(14, 165, 233, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Floating Glass Panels on Maps & Overlays */
+.glass-panel {
+  background: rgba(10, 18, 34, 0.92) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(6, 182, 212, 0.25) !important;
+  color: #f1f5f9 !important;
+}
+
+html.light .glass-panel {
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(14, 165, 233, 0.22) !important;
+  box-shadow: 0 10px 30px -5px rgba(14, 165, 233, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.05) !important;
+  color: #0f172a !important;
+}
+
+/* Ensure text inside glass-panel in light mode is crisp and readable */
+html.light .glass-panel .text-slate-200,
+html.light .glass-panel .text-slate-100 {
+  color: #0f172a !important;
+}
+
+html.light .glass-panel .text-slate-300,
+html.light .glass-panel .text-slate-400 {
+  color: #334155 !important;
+}
+
+html.light .glass-panel .text-cyan-300,
+html.light .glass-panel .text-cyan-400 {
+  color: #0284c7 !important;
+}
+
+/* ==========================================================================
+   SLEEK BUTTONS & ACTIONS
+   ========================================================================== */
+
 .mint-btn {
-  background: #10b981;
-  color: #021a12;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
   font-weight: 600;
-  border: 1px solid rgba(52, 211, 153, 0.4);
-  transition: all 0.15s ease;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25);
+  transition: all 0.2s ease;
 }
 .mint-btn:hover {
-  background: #059669;
-  color: #ffffff;
-  border-color: #10b981;
-  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25);
+  background: linear-gradient(135deg, #059669, #047857);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  transform: translateY(-1px);
 }
 
 .industry-btn-primary {
-  background: #0284c7;
+  background: linear-gradient(135deg, #0284c7, #0369a1);
   color: #ffffff;
   font-weight: 600;
-  border: 1px solid #38bdf8;
-  transition: all 0.15s ease;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+  transition: all 0.2s ease;
 }
 .industry-btn-primary:hover:not(:disabled) {
-  background: #0369a1;
-  border-color: #7dd3fc;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+  background: linear-gradient(135deg, #0369a1, #075985);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  transform: translateY(-1px);
 }
 
-/* Sleek industrial scrollbars */
+.glow-cyan-btn {
+  background: linear-gradient(135deg, #06b6d4, #0891b2) !important;
+  color: #060a14 !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(6, 182, 212, 0.4) !important;
+  box-shadow: 0 2px 14px rgba(6, 182, 212, 0.35) !important;
+  transition: all 0.2s ease !important;
+}
+.glow-cyan-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #22d3ee, #06b6d4) !important;
+  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.55) !important;
+  transform: translateY(-1px) !important;
+}
+
+html.light .glow-cyan-btn {
+  background: linear-gradient(135deg, #0891b2, #0284c7) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(2, 132, 199, 0.3) !important;
+  box-shadow: 0 2px 12px rgba(6, 182, 212, 0.25) !important;
+}
+html.light .glow-cyan-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0e7490, #0369a1) !important;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35) !important;
+}
+
+/* ==========================================================================
+   SCROLLBARS
+   ========================================================================== */
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #080f16;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1b2f3f;
+  background: #334155;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #25445c;
+  background: #475569;
 }
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ==========================================================================
+   LEAFLET MAP POLISH
+   ========================================================================== */
 
 .leaflet-container {
   width: 100%;
   height: 100%;
   z-index: 0;
-  background: #060b11 !important;
+  font-family: inherit !important;
 }
 
-/* Professional high-contrast action buttons */
-.glow-cyan-btn {
-  background: #0284c7 !important;
-  color: #ffffff !important;
-  font-weight: 600;
-  border: 1px solid #38bdf8;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  transition: all 0.15s ease;
-  text-decoration: none;
-}
-
-.glow-cyan-btn:hover:not(:disabled) {
-  background: #0369a1 !important;
-  border-color: #7dd3fc;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
-  transform: translateY(-1px);
-}
-
-.glow-cyan-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  box-shadow: none;
-  filter: grayscale(0.6);
-}
-
-.glow-teal-btn {
-  background: #0d9488 !important;
-  color: #ffffff !important;
-  font-weight: 600;
-  border: 1px solid #2dd4bf;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  transition: all 0.15s ease;
-}
-
-.glow-teal-btn:hover:not(:disabled) {
-  background: #0f766e !important;
-  border-color: #5eead4;
-  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
-  transform: translateY(-1px);
-}
-
-/* Glassmorphism panels and cards */
-.glass-card {
-  background: rgba(12, 22, 32, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #162a3a;
-  border-radius: 0.625rem;
-}
-
-.glass-card:hover {
-  border-color: #1e3b52;
-}
-
-.glass-panel {
-  background: rgba(9, 17, 25, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid #142838;
-  border-radius: 0.75rem;
-  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.5);
-}
-
-/* Map CSS Overrides */
 .leaflet-popup-content-wrapper {
-  background: rgba(9, 18, 26, 0.96) !important;
+  background: rgba(12, 20, 34, 0.95) !important;
   color: #f1f5f9 !important;
-  border: 1px solid #1c3b50 !important;
-  border-radius: 0.5rem !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7) !important;
-  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(14px) !important;
+  padding: 4px !important;
 }
 
 .leaflet-popup-tip {
-  background: rgba(9, 18, 26, 0.96) !important;
-  border: 1px solid #1c3b50 !important;
+  background: rgba(12, 20, 34, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
-/* Custom Tactical Tooltip Overrides (eliminates default leaflet white box) */
+html.light .leaflet-popup-content-wrapper {
+  background: rgba(255, 255, 255, 0.98) !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+html.light .leaflet-popup-tip {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+}
+
 .leaflet-tooltip {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
 }
-
 .leaflet-tooltip::before,
 .leaflet-tooltip::after {
   display: none !important;
@@ -233,8 +333,9 @@ body {
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.9), 0 0 2px #000000 !important;
 }
 
-.settlement-marker-label::before {
-  display: none !important;
+html.light .settlement-marker-label {
+  color: #0f172a !important;
+  text-shadow: 0 1px 4px rgba(255, 255, 255, 0.95), 0 0 6px #ffffff !important;
 }
 
 .highway-badge-label {
@@ -242,10 +343,416 @@ body {
   color: #09121a !important;
   font-size: 9px !important;
   font-weight: 800 !important;
-  font-family: monospace !important;
+  font-family: 'JetBrains Mono', monospace !important;
   border: 1px solid #d97706 !important;
-  border-radius: 3px !important;
-  padding: 1px 4px !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
+  border-radius: 4px !important;
+  padding: 1px 5px !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
 }
+
+/* ==========================================================================
+   COMPREHENSIVE LIGHT THEME HARMONIZATION
+   ========================================================================== */
+
+/* Outer Canvas / Page Backdrops */
+html.light .bg-\[\#070c12\],
+html.light .bg-\[\#07141b\],
+html.light .bg-\[\#070c18\],
+html.light .bg-\[\#060a14\],
+html.light .bg-\[\#061218\],
+html.light .bg-\[\#061217\],
+html.light .bg-\[\#06121e\],
+html.light .bg-\[\#050811\],
+html.light .bg-\[\#050912\],
+html.light .bg-\[\#050b10\],
+html.light .bg-\[\#040810\],
+html.light .bg-\[\#070e14\],
+html.light .bg-\[\#070e1a\],
+html.light .bg-\[\#070e1c\],
+html.light .bg-\[\#07131e\],
+html.light .bg-\[\#080d1a\],
+html.light .bg-\[\#080e1a\],
+html.light .bg-\[\#08151d\],
+html.light .bg-\[\#08151f\],
+html.light .bg-\[\#08181f\] {
+  background-color: #f8fafc !important;
+}
+
+/* Cards, Modules, Panels & Dialogs */
+html.light .bg-\[\#09121a\],
+html.light .bg-\[\#0c1620\],
+html.light .bg-\[\#0a0f1d\],
+html.light .bg-\[\#090f1d\],
+html.light .bg-\[\#0d1527\],
+html.light .bg-\[\#0b1620\],
+html.light .bg-\[\#091720\],
+html.light .bg-\[\#081018\],
+html.light .bg-\[\#081118\],
+html.light .bg-\[\#09141c\],
+html.light .bg-\[\#09151d\],
+html.light .bg-\[\#09151e\],
+html.light .bg-\[\#091522\],
+html.light .bg-\[\#091b24\],
+html.light .bg-\[\#0a1222\],
+html.light .bg-\[\#0a1224\],
+html.light .bg-\[\#0a151e\],
+html.light .bg-\[\#0a161e\],
+html.light .bg-\[\#0a1c25\],
+html.light .bg-\[\#0b171f\],
+html.light .bg-\[\#0b1822\],
+html.light .bg-\[\#0b1a23\],
+html.light .bg-\[\#0b1d24\],
+html.light .bg-\[\#0b202a\],
+html.light .bg-\[\#0c1326\],
+html.light .bg-\[\#0c1820\],
+html.light .bg-\[\#0c1a24\],
+html.light .bg-\[\#0c1a26\],
+html.light .bg-\[\#0c2230\],
+html.light .bg-\[\#0c2233\],
+html.light .bg-\[\#0d1627\],
+html.light .bg-\[\#0d182e\],
+html.light .bg-\[\#0d1c26\],
+html.light .bg-\[\#0d1d28\],
+html.light .bg-\[\#0d1f2b\],
+html.light .bg-\[\#0d222e\],
+html.light .bg-\[\#0e1d28\],
+html.light .bg-\[\#0e212b\],
+html.light .bg-\[\#0e222b\],
+html.light .bg-\[\#0f1d2a\],
+html.light .bg-\[\#0f1f2a\],
+html.light .bg-\[\#0f212c\],
+html.light .bg-\[\#0f2438\],
+html.light .bg-\[\#0f2a38\],
+html.light .bg-\[\#102b38\],
+html.light .bg-\[\#112330\],
+html.light .bg-\[\#122837\],
+html.light .bg-\[\#122e3e\],
+html.light .bg-\[\#123040\],
+html.light .bg-\[\#13223d\],
+html.light .bg-\[\#132836\],
+html.light .bg-\[\#132c3a\] {
+  background-color: #ffffff !important;
+}
+
+/* Universal Wildcard Protection: Catch ANY arbitrary hex dark backgrounds with opacity */
+html.light [class*="bg-\[\#0"]:not([class*="text-"]):not(button):not(.glow-cyan-btn) {
+  background-color: #ffffff !important;
+}
+html.light [class*="bg-\[\#1"]:not([class*="text-"]):not(button):not(.glow-cyan-btn) {
+  background-color: #ffffff !important;
+}
+
+/* Neutralize dark gradients across simulation workflows */
+html.light [class*="from-cyan-950"],
+html.light [class*="from-teal-950"],
+html.light [class*="from-slate-900"],
+html.light [class*="from-\[\#0"],
+html.light [class*="via-\[\#0"],
+html.light [class*="to-\[\#0"] {
+  background-image: linear-gradient(to right, #f1f5f9, #f8fafc) !important;
+}
+
+/* Selected active cards with rich light tint */
+html.light .ring-cyan-400[class*="from-cyan-950"],
+html.light .ring-cyan-500[class*="from-cyan-950"] {
+  background-image: linear-gradient(135deg, #ecfeff, #f0fdfa) !important;
+  background-color: #ecfeff !important;
+}
+
+/* Semi-transparent Backdrop Overlays */
+html.light .bg-\[\#070c18\]\/90,
+html.light .bg-\[\#070c18\]\/80,
+html.light .bg-\[\#091720\]\/95,
+html.light .bg-\[\#07141b\]\/80 {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+}
+
+/* Semantic Badges & Alert Backdrops */
+html.light .bg-\[\#06201b\],
+html.light .bg-\[\#063326\],
+html.light .bg-emerald-950\/80,
+html.light .bg-emerald-950\/70,
+html.light .bg-emerald-950\/60,
+html.light .bg-emerald-950\/40,
+html.light .bg-emerald-500\/10,
+html.light .bg-emerald-500\/15 {
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+  border-color: #a7f3d0 !important;
+}
+
+html.light .bg-\[\#1a080c\],
+html.light .bg-\[\#201015\],
+html.light .bg-\[\#290d12\],
+html.light .bg-\[\#2e0d15\],
+html.light .bg-red-950\/60,
+html.light .bg-rose-950\/60 {
+  background-color: #fef2f2 !important;
+  color: #991b1b !important;
+  border-color: #fecaca !important;
+}
+
+html.light .bg-\[\#241a0e\],
+html.light .bg-amber-950\/60 {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  border-color: #fde68a !important;
+}
+
+html.light .bg-cyan-950\/60,
+html.light .bg-cyan-950\/40,
+html.light .bg-sky-950\/60 {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+}
+
+/* ==========================================================================
+   BORDER COLOR OVERRIDES
+   ========================================================================== */
+
+html.light .border-\[\#122c38\],
+html.light .border-\[\#142533\],
+html.light .border-\[\#142834\],
+html.light .border-\[\#142836\],
+html.light .border-\[\#142a37\],
+html.light .border-\[\#142e3b\],
+html.light .border-\[\#142e3d\],
+html.light .border-\[\#153444\],
+html.light .border-\[\#162d3d\],
+html.light .border-\[\#163342\],
+html.light .border-\[\#163544\],
+html.light .border-\[\#16384a\],
+html.light .border-\[\#173444\],
+html.light .border-\[\#18394a\],
+html.light .border-\[\#193344\],
+html.light .border-\[\#193547\],
+html.light .border-\[\#193d4e\],
+html.light .border-\[\#1a3848\],
+html.light .border-\[\#1a3c4e\],
+html.light .border-\[\#1b3648\],
+html.light .border-\[\#1b394e\],
+html.light .border-\[\#1b3a4a\],
+html.light .border-\[\#1b3d4f\],
+html.light .border-\[\#1b3e4f\],
+html.light .border-\[\#1b3e50\],
+html.light .border-\[\#122c38\]\/60 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .border-cyan-500\/15,
+html.light .border-cyan-500\/20,
+html.light .border-cyan-500\/25,
+html.light .border-cyan-500\/30,
+html.light .border-emerald-500\/30,
+html.light .border-emerald-500\/40,
+html.light .border-emerald-500\/50 {
+  border-color: #cbd5e1 !important;
+}
+
+/* ==========================================================================
+   TYPOGRAPHY IN WHITE MODE
+   ========================================================================== */
+
+/* Primary Crisp Dark Text */
+html.light .text-white,
+html.light .text-slate-100,
+html.light .text-slate-200,
+html.light .text-\[\#d1dce5\],
+html.light .text-\[\#a4bcc8\],
+html.light .text-\[\#a2bdcb\],
+html.light .text-\[\#a2c2d2\],
+html.light .text-\[\#9bb7c6\],
+html.light .text-\[\#9ab0bd\] {
+  color: #0f172a !important;
+}
+
+/* Muted Subtitles & Descriptions */
+html.light .text-slate-300,
+html.light .text-slate-400,
+html.light .text-\[\#8aaab9\],
+html.light .text-\[\#8cb0c0\],
+html.light .text-\[\#84a3b3\],
+html.light .text-\[\#819ca9\],
+html.light .text-\[\#7f9fae\],
+html.light .text-\[\#7d9eaf\],
+html.light .text-\[\#76a0b2\],
+html.light .text-\[\#769cb0\],
+html.light .text-\[\#7698a8\],
+html.light .text-\[\#7397a7\],
+html.light .text-\[\#7198aa\],
+html.light .text-\[\#7192a2\],
+html.light .text-\[\#7090a0\],
+html.light .text-\[\#6f90a2\],
+html.light .text-\[\#6d8e9e\],
+html.light .text-\[\#6c8f9f\],
+html.light .text-\[\#6b92a5\],
+html.light .text-\[\#6b8e9f\],
+html.light .text-\[\#6b8d9e\],
+html.light .text-\[\#688a9a\],
+html.light .text-\[\#66889a\],
+html.light .text-\[\#64899c\],
+html.light .text-\[\#648496\],
+html.light .text-\[\#5e8495\],
+html.light .text-\[\#5e8193\],
+html.light .text-\[\#5b7f91\],
+html.light .text-\[\#5b7e90\],
+html.light .text-\[\#587e90\],
+html.light .text-\[\#567a8b\],
+html.light .text-\[\#557c8d\],
+html.light .text-\[\#557b8c\],
+html.light .text-\[\#55788a\],
+html.light .text-\[\#54798b\],
+html.light .text-\[\#527d91\],
+html.light .text-\[\#4e7486\],
+html.light .text-\[\#4d7888\],
+html.light .text-\[\#4d7283\],
+html.light .text-\[\#4a7283\],
+html.light .text-\[\#486b7c\],
+html.light .text-\[\#416474\],
+html.light .text-\[\#416272\],
+html.light .text-\[\#3b6678\],
+html.light .text-\[\#3b5869\] {
+  color: #475569 !important;
+}
+
+/* High-Contrast Brand Accents in Light Mode */
+html.light .text-\[\#38d9a9\],
+html.light .text-\[\#2dd4bf\] {
+  color: #059669 !important;
+}
+
+html.light .text-emerald-400,
+html.light .text-emerald-300 {
+  color: #059669 !important;
+}
+
+html.light .text-cyan-400,
+html.light .text-cyan-300,
+html.light .text-\[\#7dd3fc\] {
+  color: #0284c7 !important;
+}
+
+html.light .text-amber-400,
+html.light .text-amber-300 {
+  color: #b45309 !important;
+}
+
+html.light .text-rose-400,
+html.light .text-rose-300 {
+  color: #be123c !important;
+}
+
+/* Form inputs & tables */
+html.light input,
+html.light select,
+html.light textarea {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html.light input:focus,
+html.light select:focus,
+html.light textarea:focus {
+  border-color: #059669 !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+html.light option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Light Mode Aquatic Badge & Container Contrast Overrides */
+html.light .bg-amber-950\/40,
+html.light .bg-amber-950\/30,
+html.light .bg-amber-950\/60,
+html.light .bg-amber-950\/80,
+html.light .bg-amber-950 {
+  background-color: #fef3c7 !important;
+  border-color: #fcd34d !important;
+  color: #92400e !important;
+}
+
+html.light .bg-emerald-950\/40,
+html.light .bg-emerald-950\/30,
+html.light .bg-emerald-950\/60,
+html.light .bg-emerald-950\/80,
+html.light .bg-emerald-950 {
+  background-color: #d1fae5 !important;
+  border-color: #6ee7b7 !important;
+  color: #065f46 !important;
+}
+
+html.light .bg-rose-950\/40,
+html.light .bg-rose-950\/30,
+html.light .bg-rose-950\/60,
+html.light .bg-rose-950\/80,
+html.light .bg-rose-950 {
+  background-color: #ffe4e6 !important;
+  border-color: #fda4af !important;
+  color: #9f1239 !important;
+}
+
+html.light .bg-cyan-950\/40,
+html.light .bg-cyan-950\/30,
+html.light .bg-cyan-950\/70,
+html.light .bg-cyan-950\/80,
+html.light .bg-cyan-950 {
+  background-color: #e0f2fe !important;
+  border-color: #7dd3fc !important;
+  color: #0369a1 !important;
+}
+
+/* Water design styling for cards and panels */
+html.light .glass-panel,
+html.light .glass-card {
+  box-shadow: 0 4px 20px -2px rgba(14, 165, 233, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.04) !important;
+}
+
+/* High-Contrast Leaflet Tooltips & Popups (Eliminates color disparity on Satellite & Relief) */
+.leaflet-tooltip {
+  background: rgba(10, 15, 29, 0.96) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(71, 85, 105, 0.8) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+  padding: 0 !important;
+  font-family: inherit !important;
+}
+
+.leaflet-tooltip-top:before {
+  border-top-color: rgba(10, 15, 29, 0.96) !important;
+}
+
+.leaflet-tooltip-bottom:before {
+  border-bottom-color: rgba(10, 15, 29, 0.96) !important;
+}
+
+.leaflet-tooltip-left:before {
+  border-left-color: rgba(10, 15, 29, 0.96) !important;
+}
+
+.leaflet-tooltip-right:before {
+  border-right-color: rgba(10, 15, 29, 0.96) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(10, 15, 29, 0.96) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(71, 85, 105, 0.8) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(10, 15, 29, 0.96) !important;
+}
+
 
